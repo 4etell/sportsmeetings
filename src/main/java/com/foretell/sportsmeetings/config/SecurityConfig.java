@@ -21,6 +21,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements WebM
     private static final String REGISTRATION_ENDPOINT = "/auth/register";
     private static final String HELLO_ENDPOINT = "/hello";
     private static final String ADMIN_ENDPOINT = "/admin/**";
+    private static final String[] SWAGGER_WHITELIST = {
+            "/v2/api-docs",
+            "/swagger-resources",
+            "/swagger-resources/**",
+            "/configuration/ui",
+            "/configuration/security",
+            "/swagger-ui.html",
+            "/webjars/**",
+            "/swagger-ui/**"
+    };
 
     private final JwtFilter jwtFilter;
 
@@ -41,6 +51,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements WebM
                 .and()
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
+                .antMatchers(SWAGGER_WHITELIST).permitAll()
                 .antMatchers(LOGIN_ENDPOINT, REGISTRATION_ENDPOINT, HELLO_ENDPOINT).permitAll()
                 .antMatchers(ADMIN_ENDPOINT).hasRole("ADMIN")
                 .anyRequest().authenticated();

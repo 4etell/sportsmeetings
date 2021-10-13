@@ -5,6 +5,10 @@ import com.foretell.sportsmeetings.dto.req.RegistrationReqDto;
 import com.foretell.sportsmeetings.dto.res.AuthenticationResDto;
 import com.foretell.sportsmeetings.service.UserService;
 import com.foretell.sportsmeetings.util.jwt.JwtProvider;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,7 +35,14 @@ public class AuthenticationRestController {
         this.authenticationManager = authenticationManager;
     }
 
-
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "400", description = "You sent invalid fields in your request"),
+                    @ApiResponse(responseCode = "403", description = "Bad Credentials"),
+                    @ApiResponse(responseCode = "404", description = "Username not found"),
+                    @ApiResponse(responseCode = "409", description = "Username already exists")
+            }
+    )
     @PostMapping("login")
     public ResponseEntity<AuthenticationResDto> login(
             @RequestBody @Valid AuthenticationReqDto authenticationReqDto) {
@@ -49,6 +60,12 @@ public class AuthenticationRestController {
     }
 
 
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "400", description = "You sent invalid fields in your request"),
+                    @ApiResponse(responseCode = "409", description = "Username already exists")
+            }
+    )
     @PostMapping("register")
     public ResponseEntity<AuthenticationResDto> register(
             @RequestBody @Valid RegistrationReqDto registrationReqDto) {
