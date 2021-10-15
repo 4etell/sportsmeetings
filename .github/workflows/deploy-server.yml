@@ -33,7 +33,7 @@ jobs:
           echo "${{SECRETS.SSH_PRIVATE_KEY}}" > "${HOME}/.ssh/id_rsa"
           chmod 400 "${HOME}/.ssh/id_rsa"
           rsync -az --chmod=755 --delete ubuntu@${{SECRETS.SERVER_IP}}:${{SECRETS.DEPLOY_PATH}}
-          ssh root@${{SECRETS.SERVER_IP}} 'bash -l -c "
+          ssh ubuntu@${{SECRETS.SERVER_IP}} 'bash -l -c "
           echo 'connected';
           cd '${{SECRETS.DEPLOY_PATH}}';
           pm2 restart sportsmeetings-server"'
