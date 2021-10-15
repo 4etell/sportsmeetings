@@ -4,7 +4,6 @@ import com.foretell.sportsmeetings.dto.res.UserInfoResDto;
 import com.foretell.sportsmeetings.exception.InvalidProfilePhotoException;
 import com.foretell.sportsmeetings.service.UserService;
 import com.foretell.sportsmeetings.util.jwt.JwtProvider;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,10 +38,10 @@ public class UserRestController {
     public ResponseEntity<?> loadProfilePhoto(@RequestPart MultipartFile photo, HttpServletRequest httpServletRequest) throws InvalidProfilePhotoException, MaxUploadSizeExceededException {
         String usernameFromToken =
                 jwtProvider.getUsernameFromToken(jwtProvider.getTokenFromRequest(httpServletRequest));
-       if (userService.loadProfilePhoto(photo, usernameFromToken)) {
-           return ResponseEntity.ok("Photo loaded successfully");
-       } else {
-           return ResponseEntity.status(500).body("Something wrong on server");
-       }
+        if (userService.loadProfilePhoto(photo, usernameFromToken)) {
+            return ResponseEntity.ok("Photo loaded successfully");
+        } else {
+            return ResponseEntity.status(500).body("Something wrong on server");
+        }
     }
 }
