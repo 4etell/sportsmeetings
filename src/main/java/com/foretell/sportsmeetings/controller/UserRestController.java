@@ -6,8 +6,8 @@ import com.foretell.sportsmeetings.service.UserService;
 import com.foretell.sportsmeetings.util.jwt.JwtProvider;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
@@ -16,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 
 @RestController
-@RequestMapping("user")
 public class UserRestController {
 
     private final JwtProvider jwtProvider;
@@ -27,11 +26,16 @@ public class UserRestController {
         this.userService = userService;
     }
 
-    @GetMapping("info")
+    @GetMapping("me")
     public UserInfoResDto getUserInfo(HttpServletRequest httpServletRequest) {
         String usernameFromToken =
                 jwtProvider.getUsernameFromToken(jwtProvider.getTokenFromRequest(httpServletRequest));
-        return userService.getUserInfo(usernameFromToken);
+        return userService.getUserInfoByUsername(usernameFromToken);
+    }
+
+    @GetMapping("user/info/{userId}")
+    public UserInfoResDto getUserInfo(@PathVariable Long userId) {
+        return userService.getUserInfoById(userId);
     }
 
     @PostMapping("load-profile-photo")

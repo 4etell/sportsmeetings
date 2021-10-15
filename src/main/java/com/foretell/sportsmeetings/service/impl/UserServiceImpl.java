@@ -80,8 +80,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserInfoResDto getUserInfo(String username) {
+    public UserInfoResDto getUserInfoByUsername(String username) {
         return convertUserToUserInfoResDto(findByUsername(username));
+    }
+
+    @Override
+    public UserInfoResDto getUserInfoById(Long id) {
+        return convertUserToUserInfoResDto(findById(id));
     }
 
     @Override
@@ -135,6 +140,7 @@ public class UserServiceImpl implements UserService {
 
     private UserInfoResDto convertUserToUserInfoResDto(User user) {
         return new UserInfoResDto(
+                user.getId(),
                 user.getUsername(),
                 user.getFirstName(),
                 user.getLastName(),

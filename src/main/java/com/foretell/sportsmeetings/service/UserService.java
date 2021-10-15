@@ -13,7 +13,9 @@ public interface UserService {
 
     User findById(Long id);
 
-    UserInfoResDto getUserInfo(String username);
+    UserInfoResDto getUserInfoByUsername(String username);
+
+    UserInfoResDto getUserInfoById(Long id);
 
     boolean loadProfilePhoto(MultipartFile photo, String username) throws InvalidProfilePhotoException;
 }

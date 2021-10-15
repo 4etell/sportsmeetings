@@ -8,6 +8,7 @@ import java.util.List;
 @Data
 @RequiredArgsConstructor
 public class UserInfoResDto {
+    private final Long id;
     private final String username;
     private final String firstName;
     private final String lastName;
