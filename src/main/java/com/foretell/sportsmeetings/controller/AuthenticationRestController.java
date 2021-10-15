@@ -53,8 +53,7 @@ public class AuthenticationRestController {
                 authenticationReqDto.getPassword()));
 
         String token = jwtProvider.generateToken(username);
-        List<String> userRolesByUsername = userService.findUserRolesByUsername(username);
-        AuthenticationResDto authenticationResDto = new AuthenticationResDto(username, token, userRolesByUsername);
+        AuthenticationResDto authenticationResDto = new AuthenticationResDto(token);
 
         return ResponseEntity.ok(authenticationResDto);
     }
@@ -72,9 +71,7 @@ public class AuthenticationRestController {
 
         String registeredUsername = userService.register(registrationReqDto).getUsername();
         String token = jwtProvider.generateToken(registeredUsername);
-        List<String> userRolesByUsername = userService.findUserRolesByUsername(registeredUsername);
-        AuthenticationResDto authenticationResDto =
-                new AuthenticationResDto(registeredUsername, token, userRolesByUsername);
+        AuthenticationResDto authenticationResDto = new AuthenticationResDto(token);
 
         return ResponseEntity.ok(authenticationResDto);
     }
