@@ -17,4 +17,9 @@ public class AdminRestController {
     public String bye() {
         return "bye Admin!";
     }
+
+    @GetMapping("test")
+    public String test() {
+        return "test Admin!";
+    }
 }
