@@ -20,8 +20,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -77,6 +75,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User findById(Long id) {
+        return userRepo.findById(id).orElseThrow(() -> new UserNotFoundException("User not found"));
+    }
+
+    @Override
     public UserInfoResDto getUserInfo(String username) {
         return convertUserToUserInfoResDto(findByUsername(username));
     }
@@ -91,7 +94,7 @@ public class UserServiceImpl implements UserService {
         if (suffix.equalsIgnoreCase("jpg") ||
                 suffix.equalsIgnoreCase("jpeg") ||
                 suffix.equalsIgnoreCase("png")) {
-            String fileName = (user.getUsername() + "-avatar") + ".jpg";
+            String fileName = (user.getUsername()) + ".jpg";
             createProfilePhotoDirIfNotExists();
             String filePath = profilePhotoPath + fileName;
             try {
