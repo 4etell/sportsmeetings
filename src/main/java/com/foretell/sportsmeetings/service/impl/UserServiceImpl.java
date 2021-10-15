@@ -1,6 +1,8 @@
 package com.foretell.sportsmeetings.service.impl;
 
 import com.foretell.sportsmeetings.dto.req.RegistrationReqDto;
+import com.foretell.sportsmeetings.dto.res.UserInfoResDto;
+import com.foretell.sportsmeetings.exception.RoleNotFoundException;
 import com.foretell.sportsmeetings.exception.UserNotFoundException;
 import com.foretell.sportsmeetings.exception.UsernameAlreadyExistsException;
 import com.foretell.sportsmeetings.model.Role;
@@ -36,11 +38,12 @@ public class UserServiceImpl implements UserService {
 
         String usernameFromDto = registrationReqDto.getUsername();
 
-        if (userRepo.findByUsername(usernameFromDto) == null) {
+        if (userRepo.findByUsername(usernameFromDto).isEmpty()) {
 
             User user = convertRegistrationReqDtoToUser(registrationReqDto);
 
-            Role roleUser = roleRepo.findByName("ROLE_USER");
+            Role roleUser = roleRepo.findByName("ROLE_USER").
+                    orElseThrow(() -> new RoleNotFoundException("ROLE_USER not found"));
             List<Role> userRoles = new ArrayList<>();
             userRoles.add(roleUser);
 
@@ -60,28 +63,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findByUsername(String username) {
-        User result = userRepo.findByUsername(username);
-        if (result != null) {
-            return result;
-        } else {
-            log.error("IN findByUsername - user is null found by username: {}", username);
-            throw new UserNotFoundException("User is not found");
-        }
+        return userRepo.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User not found"));
     }
 
     @Override
-    public List<String> findUserRolesByUsername(String username) {
-        List<Role> roles = findByUsername(username).getRoles();
-        return getRoleNames(roles);
-    }
-
-    private User convertRegistrationReqDtoToUser(RegistrationReqDto registrationReqDto) {
-        return new User(registrationReqDto.getUsername(),
-                registrationReqDto.getFirstName(),
-                registrationReqDto.getLastName(),
-                registrationReqDto.getEmail(),
-                passwordEncoder.encode(registrationReqDto.getPassword()),
-                null);
+    public UserInfoResDto getUserInfo(String username) {
+        return convertUserToUserInfoResDto(findByUsername(username));
     }
 
     private List<String> getRoleNames(List<Role> userRoles) {
@@ -94,7 +81,27 @@ public class UserServiceImpl implements UserService {
 
             return result;
         } else {
-            return null;
+            throw new RoleNotFoundException("User roles is null!!!");
         }
+    }
+
+
+    private User convertRegistrationReqDtoToUser(RegistrationReqDto registrationReqDto) {
+        return new User(
+                registrationReqDto.getUsername(),
+                registrationReqDto.getFirstName(),
+                registrationReqDto.getLastName(),
+                registrationReqDto.getEmail(),
+                passwordEncoder.encode(registrationReqDto.getPassword()),
+                null);
+    }
+
+    private UserInfoResDto convertUserToUserInfoResDto(User user) {
+        return new UserInfoResDto(
+                user.getUsername(),
+                user.getFirstName(),
+                user.getLastName(),
+                getRoleNames(user.getRoles())
+        );
     }
 }
