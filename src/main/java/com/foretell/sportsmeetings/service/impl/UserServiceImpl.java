@@ -2,6 +2,7 @@ package com.foretell.sportsmeetings.service.impl;
 
 import com.foretell.sportsmeetings.dto.req.RegistrationReqDto;
 import com.foretell.sportsmeetings.dto.res.UserInfoResDto;
+import com.foretell.sportsmeetings.exception.InvalidProfilePhotoException;
 import com.foretell.sportsmeetings.exception.RoleNotFoundException;
 import com.foretell.sportsmeetings.exception.UserNotFoundException;
 import com.foretell.sportsmeetings.exception.UsernameAlreadyExistsException;
@@ -12,9 +13,15 @@ import com.foretell.sportsmeetings.repo.UserRepo;
 import com.foretell.sportsmeetings.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +32,9 @@ public class UserServiceImpl implements UserService {
     private final UserRepo userRepo;
     private final RoleRepo roleRepo;
     private final BCryptPasswordEncoder passwordEncoder;
+
+    @Value("${profile.photo.path}")
+    private String profilePhotoPath;
 
     @Autowired
     public UserServiceImpl(UserRepo userRepo, RoleRepo roleRepo, BCryptPasswordEncoder passwordEncoder) {
@@ -71,6 +81,30 @@ public class UserServiceImpl implements UserService {
         return convertUserToUserInfoResDto(findByUsername(username));
     }
 
+    @Override
+    public boolean loadProfilePhoto(MultipartFile photo, String username) throws InvalidProfilePhotoException {
+        if (photo.isEmpty()) {
+            throw new InvalidProfilePhotoException("Photo is empty");
+        }
+        User user = findByUsername(username);
+        String suffix = photo.getOriginalFilename().substring(photo.getOriginalFilename().lastIndexOf(".") + 1);
+        if (suffix.equalsIgnoreCase("jpg") ||
+                suffix.equalsIgnoreCase("jpeg") ||
+                suffix.equalsIgnoreCase("png")) {
+            String fileName = (user.getUsername() + "-avatar") + ".jpg";
+            createProfilePhotoDirIfNotExists();
+            String filePath = profilePhotoPath + fileName;
+            try {
+                photo.transferTo(new File(filePath));
+            } catch (IOException e) {
+                throw new InvalidProfilePhotoException(e.getMessage());
+            }
+            return true;
+        } else {
+            throw new InvalidProfilePhotoException("Photo format can only be of these types: .jpeg, .png, .jpg");
+        }
+    }
+
     private List<String> getRoleNames(List<Role> userRoles) {
         if (userRoles != null) {
             List<String> result = new ArrayList<>();
@@ -103,5 +137,13 @@ public class UserServiceImpl implements UserService {
                 user.getLastName(),
                 getRoleNames(user.getRoles())
         );
+    }
+
+    private void createProfilePhotoDirIfNotExists() {
+        File loadDir = new File(profilePhotoPath);
+
+        if (!loadDir.exists()) {
+            loadDir.mkdir();
+        }
     }
 }
