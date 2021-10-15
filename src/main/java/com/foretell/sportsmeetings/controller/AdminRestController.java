@@ -10,6 +10,6 @@ public class AdminRestController {
 
     @GetMapping("hello")
     public String hello() {
-        return "Hello Admin!";
+        return "Hello Admin lol!";
     }
 }
