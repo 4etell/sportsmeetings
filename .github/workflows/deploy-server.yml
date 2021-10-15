@@ -32,7 +32,7 @@ jobs:
           ssh-keyscan -H ${{SECRETS.SERVER_IP}} >> "${HOME}/.ssh/known_hosts"
           echo "${{SECRETS.SSH_PRIVATE_KEY}}" > "${HOME}/.ssh/id_rsa"
           chmod 400 "${HOME}/.ssh/id_rsa"
-          rsync -az --chmod=755 --delete root@${{SECRETS.SERVER_IP}}:${{SECRETS.DEPLOY_PATH}}
+          rsync -az --chmod=755 --delete ubuntu@${{SECRETS.SERVER_IP}}:${{SECRETS.DEPLOY_PATH}}
           ssh ubuntu@${{SECRETS.SERVER_IP}} 'bash -l -c "
           echo 'connected';
           cd '${{SECRETS.DEPLOY_PATH}}';
