@@ -12,4 +12,9 @@ public class AdminRestController {
     public String hello() {
         return "Hello Admin lol!";
     }
+
+    @GetMapping("Bye")
+    public String bye() {
+        return "bye Admin!";
+    }
 }
