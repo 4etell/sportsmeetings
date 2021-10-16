@@ -2,6 +2,7 @@ package com.foretell.sportsmeetings.controller;
 
 import com.foretell.sportsmeetings.exception.InvalidProfilePhotoException;
 import com.foretell.sportsmeetings.exception.ProfileCommentException;
+import com.foretell.sportsmeetings.exception.ProfileCommentNotFoundException;
 import com.foretell.sportsmeetings.exception.RoleNotFoundException;
 import com.foretell.sportsmeetings.exception.UserNotFoundException;
 import com.foretell.sportsmeetings.exception.UsernameAlreadyExistsException;
@@ -17,7 +18,8 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
 
     @ExceptionHandler(value = {
             UserNotFoundException.class,
-            RoleNotFoundException.class
+            RoleNotFoundException.class,
+            ProfileCommentNotFoundException.class
     })
     public ResponseEntity<?> handleNotFoundException(Exception ex, WebRequest request) {
         return ResponseEntity.status(404).body(ex.getMessage());
