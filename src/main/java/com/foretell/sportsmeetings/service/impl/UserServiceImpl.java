@@ -1,5 +1,6 @@
 package com.foretell.sportsmeetings.service.impl;
 
+import com.foretell.sportsmeetings.dto.req.ChangeProfileReqDto;
 import com.foretell.sportsmeetings.dto.req.RegistrationReqDto;
 import com.foretell.sportsmeetings.dto.res.UserInfoResDto;
 import com.foretell.sportsmeetings.exception.InvalidProfilePhotoException;
@@ -80,8 +81,24 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserInfoResDto getUserInfo(String username) {
+    public UserInfoResDto getUserInfoByUsername(String username) {
         return convertUserToUserInfoResDto(findByUsername(username));
+    }
+
+    @Override
+    public UserInfoResDto getUserInfoById(Long id) {
+        return convertUserToUserInfoResDto(findById(id));
+    }
+
+    @Override
+    public boolean changeProfile(ChangeProfileReqDto changeProfileReqDto, String username) {
+        User user = findByUsername(username);
+        user.setEmail(changeProfileReqDto.getEmail());
+        user.setFirstName(changeProfileReqDto.getFirstName());
+        user.setLastName(changeProfileReqDto.getLastName());
+        user.setPassword(passwordEncoder.encode(changeProfileReqDto.getPassword()));
+        userRepo.save(user);
+        return true;
     }
 
     @Override
@@ -135,6 +152,7 @@ public class UserServiceImpl implements UserService {
 
     private UserInfoResDto convertUserToUserInfoResDto(User user) {
         return new UserInfoResDto(
+                user.getId(),
                 user.getUsername(),
                 user.getFirstName(),
                 user.getLastName(),
