@@ -7,7 +7,11 @@ import java.util.List;
 
 public interface MeetingCategoryService {
     List<MeetingCategoryResDto> getAll();
+
     MeetingCategory findById(Long id);
+
     MeetingCategoryResDto getById(Long id);
+
+    boolean create(MeetingCategory meetingCategory);
 
 }

@@ -92,6 +92,12 @@ public class ProfileCommentServiceImpl implements ProfileCommentService {
         }
     }
 
+    @Override
+    public boolean deleteById(Long id) {
+        profileCommentRepo.deleteById(id);
+        return true;
+    }
+
     private ProfileCommentResDto convertProfileCommentToProfileCommentResDto(ProfileComment profileComment) {
         return new ProfileCommentResDto(
                 profileComment.getId(),

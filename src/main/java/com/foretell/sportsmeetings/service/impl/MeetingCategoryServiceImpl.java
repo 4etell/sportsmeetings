@@ -1,5 +1,6 @@
 package com.foretell.sportsmeetings.service.impl;
 
+import com.foretell.sportsmeetings.dto.req.AdminMeetingCategoryReqDto;
 import com.foretell.sportsmeetings.dto.res.MeetingCategoryResDto;
 import com.foretell.sportsmeetings.exception.MeetingCategoryNotFoundException;
 import com.foretell.sportsmeetings.model.MeetingCategory;
@@ -34,6 +35,12 @@ public class MeetingCategoryServiceImpl implements MeetingCategoryService {
     @Override
     public MeetingCategoryResDto getById(Long id) {
         return convertMeetingCategoryToMeetingCategoryResDto(findById(id));
+    }
+
+    @Override
+    public boolean create(MeetingCategory meetingCategory) {
+        meetingCategoryRepo.save(meetingCategory);
+        return true;
     }
 
     private MeetingCategoryResDto convertMeetingCategoryToMeetingCategoryResDto(MeetingCategory meetingCategory) {

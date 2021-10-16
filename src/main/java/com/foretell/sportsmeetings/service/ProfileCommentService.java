@@ -15,4 +15,6 @@ public interface ProfileCommentService {
     ProfileCommentPageResDto getAllByUsername(Pageable pageable, String username);
 
     boolean deleteCommentByIdAndAuthorUsername(Long id, String username);
+
+    boolean deleteById(Long id);
 }
