@@ -6,7 +6,6 @@ import com.foretell.sportsmeetings.exception.InvalidProfilePhotoException;
 import com.foretell.sportsmeetings.service.UserService;
 import com.foretell.sportsmeetings.util.jwt.JwtProvider;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
