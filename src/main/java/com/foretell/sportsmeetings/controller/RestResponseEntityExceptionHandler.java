@@ -1,6 +1,7 @@
 package com.foretell.sportsmeetings.controller;
 
 import com.foretell.sportsmeetings.exception.InvalidProfilePhotoException;
+import com.foretell.sportsmeetings.exception.ProfileCommentException;
 import com.foretell.sportsmeetings.exception.RoleNotFoundException;
 import com.foretell.sportsmeetings.exception.UserNotFoundException;
 import com.foretell.sportsmeetings.exception.UsernameAlreadyExistsException;
@@ -34,6 +35,13 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
             MaxUploadSizeExceededException.class
     })
     public ResponseEntity<?> handleInvalidProfilePhotoException(Exception ex, WebRequest request) {
+        return ResponseEntity.status(400).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(value = {
+            ProfileCommentException.class,
+    })
+    public ResponseEntity<?> handleProfileCommentException(Exception ex, WebRequest request) {
         return ResponseEntity.status(400).body(ex.getMessage());
     }
 }
