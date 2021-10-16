@@ -1,6 +1,6 @@
 package com.foretell.sportsmeetings.service.impl;
 
-import com.foretell.sportsmeetings.dto.req.ChangeProfileReqDto;
+import com.foretell.sportsmeetings.dto.req.ProfileInfoReqDto;
 import com.foretell.sportsmeetings.dto.req.RegistrationReqDto;
 import com.foretell.sportsmeetings.dto.res.UserInfoResDto;
 import com.foretell.sportsmeetings.exception.InvalidProfilePhotoException;
@@ -91,13 +91,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean changeProfile(ChangeProfileReqDto changeProfileReqDto, String username) {
+    public boolean changeProfile(ProfileInfoReqDto profileInfoReqDto, String username) {
         User user = findByUsername(username);
-        user.setEmail(changeProfileReqDto.getEmail());
-        user.setFirstName(changeProfileReqDto.getFirstName());
-        user.setLastName(changeProfileReqDto.getLastName());
-        user.setPassword(passwordEncoder.encode(changeProfileReqDto.getPassword()));
-        userRepo.save(user);
+        user.setEmail(profileInfoReqDto.getEmail());
+        user.setFirstName(profileInfoReqDto.getFirstName());
+        user.setLastName(profileInfoReqDto.getLastName());
+        user.setPassword(passwordEncoder.encode(profileInfoReqDto.getPassword()));
+        User updatedUser = userRepo.save(user);
+        log.info("IN changeProfile - user: {} successfully updated info", updatedUser);
         return true;
     }
 
@@ -117,8 +118,11 @@ public class UserServiceImpl implements UserService {
             try {
                 photo.transferTo(new File(filePath));
             } catch (IOException e) {
+                log.error(e.getMessage());
                 throw new InvalidProfilePhotoException(e.getMessage());
             }
+            log.info("In loadProfilePhoto - username: " +
+                    user.getUsername() + " successfully loaded profile photo");
             return true;
         } else {
             throw new InvalidProfilePhotoException("Photo format can only be of these types: .jpeg, .png, .jpg");
@@ -147,6 +151,7 @@ public class UserServiceImpl implements UserService {
                 registrationReqDto.getLastName(),
                 registrationReqDto.getEmail(),
                 passwordEncoder.encode(registrationReqDto.getPassword()),
+                null,
                 null);
     }
 
@@ -156,7 +161,8 @@ public class UserServiceImpl implements UserService {
                 user.getUsername(),
                 user.getFirstName(),
                 user.getLastName(),
-                getRoleNames(user.getRoles())
+                getRoleNames(user.getRoles()),
+                user.getEmail()
         );
     }
 

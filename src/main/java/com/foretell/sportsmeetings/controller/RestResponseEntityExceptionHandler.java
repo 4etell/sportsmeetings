@@ -34,6 +34,6 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
             MaxUploadSizeExceededException.class
     })
     public ResponseEntity<?> handleInvalidProfilePhotoException(Exception ex, WebRequest request) {
-        return ResponseEntity.status(400).body("kek");
+        return ResponseEntity.status(400).body(ex.getMessage());
     }
 }

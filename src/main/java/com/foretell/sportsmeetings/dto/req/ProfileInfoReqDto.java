@@ -8,7 +8,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
 @Data
-public class ChangeProfileReqDto {
+public class ProfileInfoReqDto {
     @NotBlank(message = "Password cannot be blank")
     @Size(min = 6, max = 256, message = "Min size of password: 6. Max size of password: 6")
     @ApiModelProperty(example = "123456")
