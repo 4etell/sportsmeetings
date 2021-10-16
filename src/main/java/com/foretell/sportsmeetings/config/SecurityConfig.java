@@ -53,7 +53,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/profile-photos/**").permitAll()
                 .antMatchers(LOGIN_ENDPOINT, REGISTRATION_ENDPOINT, HELLO_ENDPOINT).permitAll()
                 .antMatchers(ADMIN_ENDPOINT).hasRole("ADMIN")
-                .anyRequest().authenticated();
+                .anyRequest().hasRole("USER");
     }
 
     @Bean

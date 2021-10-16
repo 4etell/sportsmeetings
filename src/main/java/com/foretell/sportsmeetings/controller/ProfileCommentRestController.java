@@ -50,7 +50,7 @@ public class ProfileCommentRestController {
     public ProfileCommentPageResDto getCommentsByRecipientId(
             @PathVariable Long recipientId,
             @PageableDefault(size = 3, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        return profileCommentService.findAllByRecipientId(pageable, recipientId);
+        return profileCommentService.getAllByRecipientId(pageable, recipientId);
     }
 
     @ApiImplicitParams({
@@ -64,7 +64,7 @@ public class ProfileCommentRestController {
 
         String usernameFromToken = jwtProvider.getUsernameFromToken(
                 jwtProvider.getTokenFromRequest(httpServletRequest));
-        return profileCommentService.findAllByUsername(pageable, usernameFromToken);
+        return profileCommentService.getAllByUsername(pageable, usernameFromToken);
     }
 
     @RequestMapping(value = "/my-comments/{commentId}", method = RequestMethod.DELETE)
