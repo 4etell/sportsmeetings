@@ -1,6 +1,6 @@
 package com.foretell.sportsmeetings.service;
 
-import com.foretell.sportsmeetings.dto.req.ChangeProfileReqDto;
+import com.foretell.sportsmeetings.dto.req.ProfileInfoReqDto;
 import com.foretell.sportsmeetings.dto.req.RegistrationReqDto;
 import com.foretell.sportsmeetings.dto.res.UserInfoResDto;
 import com.foretell.sportsmeetings.exception.InvalidProfilePhotoException;
@@ -18,7 +18,7 @@ public interface UserService {
 
     UserInfoResDto getUserInfoById(Long id);
 
-    boolean changeProfile(ChangeProfileReqDto changeProfileReqDto, String username);
+    boolean changeProfile(ProfileInfoReqDto profileInfoReqDto, String username);
 
     boolean loadProfilePhoto(MultipartFile photo, String username) throws InvalidProfilePhotoException;
 }

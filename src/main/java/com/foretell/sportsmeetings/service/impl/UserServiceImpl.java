@@ -1,6 +1,6 @@
 package com.foretell.sportsmeetings.service.impl;
 
-import com.foretell.sportsmeetings.dto.req.ChangeProfileReqDto;
+import com.foretell.sportsmeetings.dto.req.ProfileInfoReqDto;
 import com.foretell.sportsmeetings.dto.req.RegistrationReqDto;
 import com.foretell.sportsmeetings.dto.res.UserInfoResDto;
 import com.foretell.sportsmeetings.exception.InvalidProfilePhotoException;
@@ -91,12 +91,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean changeProfile(ChangeProfileReqDto changeProfileReqDto, String username) {
+    public boolean changeProfile(ProfileInfoReqDto profileInfoReqDto, String username) {
         User user = findByUsername(username);
-        user.setEmail(changeProfileReqDto.getEmail());
-        user.setFirstName(changeProfileReqDto.getFirstName());
-        user.setLastName(changeProfileReqDto.getLastName());
-        user.setPassword(passwordEncoder.encode(changeProfileReqDto.getPassword()));
+        user.setEmail(profileInfoReqDto.getEmail());
+        user.setFirstName(profileInfoReqDto.getFirstName());
+        user.setLastName(profileInfoReqDto.getLastName());
+        user.setPassword(passwordEncoder.encode(profileInfoReqDto.getPassword()));
         User updatedUser = userRepo.save(user);
         log.info("IN changeProfile - user: {} successfully updated info", updatedUser);
         return true;
@@ -151,6 +151,7 @@ public class UserServiceImpl implements UserService {
                 registrationReqDto.getLastName(),
                 registrationReqDto.getEmail(),
                 passwordEncoder.encode(registrationReqDto.getPassword()),
+                null,
                 null);
     }
 
