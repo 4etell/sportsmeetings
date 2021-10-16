@@ -156,7 +156,8 @@ public class UserServiceImpl implements UserService {
                 user.getUsername(),
                 user.getFirstName(),
                 user.getLastName(),
-                getRoleNames(user.getRoles())
+                getRoleNames(user.getRoles()),
+                user.getEmail()
         );
     }
 

@@ -13,4 +13,5 @@ public class UserInfoResDto {
     private final String firstName;
     private final String lastName;
     private final List<String> roles;
+    private final String email;
 }
