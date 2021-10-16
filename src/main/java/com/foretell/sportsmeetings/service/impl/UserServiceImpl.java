@@ -97,7 +97,8 @@ public class UserServiceImpl implements UserService {
         user.setFirstName(changeProfileReqDto.getFirstName());
         user.setLastName(changeProfileReqDto.getLastName());
         user.setPassword(passwordEncoder.encode(changeProfileReqDto.getPassword()));
-        userRepo.save(user);
+        User updatedUser = userRepo.save(user);
+        log.info("IN changeProfile - user: {} successfully updated info", updatedUser);
         return true;
     }
 
@@ -117,8 +118,11 @@ public class UserServiceImpl implements UserService {
             try {
                 photo.transferTo(new File(filePath));
             } catch (IOException e) {
+                log.error(e.getMessage());
                 throw new InvalidProfilePhotoException(e.getMessage());
             }
+            log.info("In loadProfilePhoto - username: " +
+                    user.getUsername() + " successfully loaded profile photo");
             return true;
         } else {
             throw new InvalidProfilePhotoException("Photo format can only be of these types: .jpeg, .png, .jpg");
