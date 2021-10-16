@@ -44,7 +44,7 @@ public class ProfileCommentServiceImpl implements ProfileCommentService {
     }
 
     @Override
-    public ProfileCommentPageResDto findAllByRecipientId(Pageable pageable, Long recipientId) {
+    public ProfileCommentPageResDto getAllByRecipientId(Pageable pageable, Long recipientId) {
         Page<ProfileComment> page = profileCommentRepo.findAllByRecipientId(pageable, recipientId);
         List<ProfileCommentResDto> profileCommentResDtoList =
                 page.getContent().stream().
@@ -59,7 +59,7 @@ public class ProfileCommentServiceImpl implements ProfileCommentService {
     }
 
     @Override
-    public ProfileCommentPageResDto findAllByUsername(Pageable pageable, String username) {
+    public ProfileCommentPageResDto getAllByUsername(Pageable pageable, String username) {
         User user = userService.findByUsername(username);
         Page<ProfileComment> page = profileCommentRepo.findAllByRecipientId(pageable, user.getId());
         List<ProfileCommentResDto> profileCommentResDtoList =
