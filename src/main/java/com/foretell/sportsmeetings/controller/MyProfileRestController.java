@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("my-profile")
@@ -37,7 +38,7 @@ public class MyProfileRestController {
     }
 
     @PutMapping("info")
-    public ResponseEntity<?> changeInfo(@RequestBody ProfileInfoReqDto profileInfoReqDto,
+    public ResponseEntity<?> changeInfo(@RequestBody @Valid ProfileInfoReqDto profileInfoReqDto,
                                         HttpServletRequest httpServletRequest) {
         String usernameFromToken =
                 jwtProvider.getUsernameFromToken(jwtProvider.getTokenFromRequest(httpServletRequest));
@@ -49,7 +50,8 @@ public class MyProfileRestController {
     }
 
     @PutMapping("photo")
-    public ResponseEntity<?> loadPhoto(@RequestPart MultipartFile photo, HttpServletRequest httpServletRequest) throws InvalidProfilePhotoException, MaxUploadSizeExceededException {
+    public ResponseEntity<?> loadPhoto(@RequestPart MultipartFile photo,
+                                       HttpServletRequest httpServletRequest) throws InvalidProfilePhotoException, MaxUploadSizeExceededException {
         String usernameFromToken =
                 jwtProvider.getUsernameFromToken(jwtProvider.getTokenFromRequest(httpServletRequest));
         if (userService.loadProfilePhoto(photo, usernameFromToken)) {
