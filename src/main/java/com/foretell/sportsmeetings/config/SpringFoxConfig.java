@@ -42,7 +42,7 @@ public class SpringFoxConfig {
                         "For example: 'eyJhbGciOiJIUzUxMiJ9'.",
                 "1.0",
                 null,
-                new Contact("Daniil Karanov", "https://github.com/4etell", "daniilkaranov@yandex.ru"),
+                new Contact("Daniil Karanov", "https://daniilkaranov.ru/", "daniilkaranov@yandex.ru"),
                 null,
                 null,
                 Collections.emptyList());
