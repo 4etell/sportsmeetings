@@ -1,13 +1,16 @@
 package com.foretell.sportsmeetings.controller;
 
+import com.foretell.sportsmeetings.dto.req.ChangeProfileReqDto;
 import com.foretell.sportsmeetings.dto.res.UserInfoResDto;
 import com.foretell.sportsmeetings.exception.InvalidProfilePhotoException;
 import com.foretell.sportsmeetings.service.UserService;
 import com.foretell.sportsmeetings.util.jwt.JwtProvider;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
@@ -44,6 +47,18 @@ public class UserRestController {
                 jwtProvider.getUsernameFromToken(jwtProvider.getTokenFromRequest(httpServletRequest));
         if (userService.loadProfilePhoto(photo, usernameFromToken)) {
             return ResponseEntity.ok("Photo loaded successfully");
+        } else {
+            return ResponseEntity.status(500).body("Something wrong on server");
+        }
+    }
+
+    @PostMapping("change-profile")
+    public ResponseEntity<?> changeProfile(@RequestBody ChangeProfileReqDto changeProfileReqDto,
+                                           HttpServletRequest httpServletRequest) {
+        String usernameFromToken =
+                jwtProvider.getUsernameFromToken(jwtProvider.getTokenFromRequest(httpServletRequest));
+        if (userService.changeProfile(changeProfileReqDto, usernameFromToken)) {
+            return ResponseEntity.ok("Profile info changed successfully");
         } else {
             return ResponseEntity.status(500).body("Something wrong on server");
         }
