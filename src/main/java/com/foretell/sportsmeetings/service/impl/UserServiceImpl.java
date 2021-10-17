@@ -154,6 +154,7 @@ public class UserServiceImpl implements UserService {
                 registrationReqDto.getEmail(),
                 passwordEncoder.encode(registrationReqDto.getPassword()),
                 null,
+                null,
                 null);
     }
 
