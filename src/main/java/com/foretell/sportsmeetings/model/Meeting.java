@@ -33,13 +33,11 @@ public class Meeting extends AbstractEntity {
     @Column(name = "description")
     private String description;
 
-    @NotNull
     @Column(name = "first_coordinate")
-    private Double firstCoordinate;
+    private float firstCoordinate;
 
-    @NotNull
     @Column(name = "second_coordinate")
-    private Double secondCoordinate;
+    private float secondCoordinate;
 
     @NotNull
     @Column(name = "date")
