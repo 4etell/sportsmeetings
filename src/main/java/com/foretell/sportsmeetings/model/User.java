@@ -53,4 +53,10 @@ public class User extends AbstractEntity {
 
     @OneToMany(mappedBy = "recipient")
     private List<ProfileComment> profileComments = new ArrayList<ProfileComment>();
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "meeting_participants",
+            joinColumns = {@JoinColumn(name = "participant_id", referencedColumnName = "id")},
+            inverseJoinColumns = {@JoinColumn(name = "meeting_id", referencedColumnName = "id")})
+    private List<Meeting> meetings = new ArrayList<Meeting>();
 }
