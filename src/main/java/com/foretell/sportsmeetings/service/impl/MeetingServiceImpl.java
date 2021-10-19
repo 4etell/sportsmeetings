@@ -3,6 +3,7 @@ package com.foretell.sportsmeetings.service.impl;
 import com.foretell.sportsmeetings.dto.req.DateTimeReqDto;
 import com.foretell.sportsmeetings.dto.req.MeetingReqDto;
 import com.foretell.sportsmeetings.exception.InvalidDateTimeReqDtoException;
+import com.foretell.sportsmeetings.exception.MeetingNotFoundException;
 import com.foretell.sportsmeetings.model.Meeting;
 import com.foretell.sportsmeetings.model.MeetingCategory;
 import com.foretell.sportsmeetings.model.User;
@@ -45,6 +46,12 @@ public class MeetingServiceImpl implements MeetingService {
         );
         meetingRepo.save(meeting);
         return true;
+    }
+
+    @Override
+    public Meeting findById(Long id) {
+        return meetingRepo.findById(id)
+                .orElseThrow(() -> new MeetingNotFoundException("Meeting with id: " + (id) + " not found"));
     }
 
     private GregorianCalendar createGregorianCalendarToMeeting(DateTimeReqDto dateTimeReqDto) {
