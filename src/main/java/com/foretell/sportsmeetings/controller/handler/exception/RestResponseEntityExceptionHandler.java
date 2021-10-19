@@ -1,4 +1,4 @@
-package com.foretell.sportsmeetings.controller;
+package com.foretell.sportsmeetings.controller.handler.exception;
 
 import com.foretell.sportsmeetings.exception.InvalidDateTimeReqDtoException;
 import com.foretell.sportsmeetings.exception.InvalidProfilePhotoException;

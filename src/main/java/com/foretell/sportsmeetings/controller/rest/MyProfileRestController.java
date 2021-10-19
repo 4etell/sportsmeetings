@@ -1,4 +1,4 @@
-package com.foretell.sportsmeetings.controller;
+package com.foretell.sportsmeetings.controller.rest;
 
 import com.foretell.sportsmeetings.dto.req.ProfileInfoReqDto;
 import com.foretell.sportsmeetings.dto.res.UserInfoResDto;
