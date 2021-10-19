@@ -3,13 +3,14 @@ package com.foretell.sportsmeetings.controller.handler.exception;
 import com.foretell.sportsmeetings.exception.InvalidDateTimeReqDtoException;
 import com.foretell.sportsmeetings.exception.InvalidProfilePhotoException;
 import com.foretell.sportsmeetings.exception.MeetingCategoryNotFoundException;
+import com.foretell.sportsmeetings.exception.MeetingNotFoundException;
 import com.foretell.sportsmeetings.exception.ProfileCommentException;
 import com.foretell.sportsmeetings.exception.ProfileCommentNotFoundException;
+import com.foretell.sportsmeetings.exception.RequestToJoinMeetingException;
 import com.foretell.sportsmeetings.exception.RequestToJoinMeetingNotFoundException;
 import com.foretell.sportsmeetings.exception.RoleNotFoundException;
 import com.foretell.sportsmeetings.exception.UserNotFoundException;
 import com.foretell.sportsmeetings.exception.UsernameAlreadyExistsException;
-import com.foretell.sportsmeetings.model.RequestToJoinMeeting;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,12 +40,13 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     }
 
 
-
     @ExceptionHandler(value = {
             UserNotFoundException.class,
             RoleNotFoundException.class,
             ProfileCommentNotFoundException.class,
             MeetingCategoryNotFoundException.class,
+            RequestToJoinMeetingNotFoundException.class,
+            MeetingNotFoundException.class
     })
     public ResponseEntity<?> handleNotFoundException(Exception ex, WebRequest request) {
         return ResponseEntity.status(404).body(ex.getMessage());
@@ -76,6 +78,13 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
             InvalidDateTimeReqDtoException.class
     })
     public ResponseEntity<?> handleDateTimeReqDtoException(Exception ex, WebRequest request) {
+        return ResponseEntity.status(400).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(value = {
+            RequestToJoinMeetingException.class
+    })
+    public ResponseEntity<?> handleRequestToJoinMeetingException(Exception ex, WebRequest request) {
         return ResponseEntity.status(400).body(ex.getMessage());
     }
 
