@@ -2,6 +2,7 @@ package com.foretell.sportsmeetings.service.impl;
 
 import com.foretell.sportsmeetings.dto.req.DateTimeReqDto;
 import com.foretell.sportsmeetings.dto.req.MeetingReqDto;
+import com.foretell.sportsmeetings.dto.res.MeetingResDto;
 import com.foretell.sportsmeetings.exception.InvalidDateTimeReqDtoException;
 import com.foretell.sportsmeetings.exception.MeetingNotFoundException;
 import com.foretell.sportsmeetings.model.Meeting;
@@ -13,8 +14,11 @@ import com.foretell.sportsmeetings.service.MeetingService;
 import com.foretell.sportsmeetings.service.UserService;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class MeetingServiceImpl implements MeetingService {
@@ -30,7 +34,7 @@ public class MeetingServiceImpl implements MeetingService {
     }
 
     @Override
-    public boolean createMeeting(MeetingReqDto meetingReqDto, String username) {
+    public MeetingResDto createMeeting(MeetingReqDto meetingReqDto, String username) {
         User user = userService.findByUsername(username);
         MeetingCategory meetingCategory = meetingCategoryService.findById(meetingReqDto.getCategoryId());
         GregorianCalendar gregorianCalendarToMeeting = createGregorianCalendarToMeeting(meetingReqDto.getDateTimeReqDto());
@@ -44,8 +48,7 @@ public class MeetingServiceImpl implements MeetingService {
                 user,
                 null
         );
-        meetingRepo.save(meeting);
-        return true;
+        return convertMeetingToMeetingResDto(meetingRepo.save(meeting));
     }
 
     @Override
@@ -79,6 +82,35 @@ public class MeetingServiceImpl implements MeetingService {
         } else {
             throw new InvalidDateTimeReqDtoException("Date time is invalid");
         }
+    }
 
+    private MeetingResDto convertMeetingToMeetingResDto(Meeting meeting) {
+        Set<User> participants = meeting.getParticipants();
+        return new MeetingResDto(
+                meeting.getId(),
+                meeting.getCategory().getId(),
+                meeting.getDescription(),
+                meeting.getFirstCoordinate(),
+                meeting.getSecondCoordinate(),
+                convertDateOfMeetingToString(meeting.getDate()),
+                meeting.getMaxNumbOfParticipants(),
+                meeting.getCreator().getId(),
+                participants != null ? participants.stream()
+                        .map(user -> user.getId()).collect(Collectors.toList()) : null
+        );
+    }
+
+    private String convertDateOfMeetingToString(GregorianCalendar gregorianCalendar) {
+        int calendarDay = gregorianCalendar.get(Calendar.DAY_OF_MONTH);
+        int calendarMonth = gregorianCalendar.get(Calendar.MONTH);
+        int calendarHour = gregorianCalendar.get(Calendar.HOUR_OF_DAY);
+        int calendarMinute = gregorianCalendar.get(Calendar.MINUTE);
+
+        String day = calendarDay < 10 ? "0" + calendarDay : String.valueOf(calendarDay);
+        String month = calendarMonth < 10 ? "0" + calendarMonth : String.valueOf(calendarMonth);
+        String hour = calendarHour < 10 ? "0" + calendarHour : String.valueOf(calendarHour);
+        String minute = calendarMinute < 10 ? "0" + calendarMinute : String.valueOf(calendarMinute);
+
+        return day + "." + month + " / " + hour + ":" + minute;
     }
 }

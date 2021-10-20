@@ -1,9 +1,9 @@
 package com.foretell.sportsmeetings.controller.rest;
 
 import com.foretell.sportsmeetings.dto.req.MeetingReqDto;
+import com.foretell.sportsmeetings.dto.res.MeetingResDto;
 import com.foretell.sportsmeetings.service.MeetingService;
 import com.foretell.sportsmeetings.util.jwt.JwtProvider;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -24,14 +24,10 @@ public class MeetingRestController {
     }
 
     @RequestMapping(value = "/meetings", method = RequestMethod.POST)
-    public ResponseEntity<?> createMeeting(@RequestBody @Valid MeetingReqDto meetingReqDto,
-                                           HttpServletRequest httpServletRequest) {
+    public MeetingResDto createMeeting(@RequestBody @Valid MeetingReqDto meetingReqDto,
+                                       HttpServletRequest httpServletRequest) {
         String usernameFromToken =
                 jwtProvider.getUsernameFromToken(jwtProvider.getTokenFromRequest(httpServletRequest));
-        if (meetingService.createMeeting(meetingReqDto, usernameFromToken)) {
-            return ResponseEntity.ok().body("Successfully");
-        } else {
-            return ResponseEntity.internalServerError().body("Something wrong on server");
-        }
+        return meetingService.createMeeting(meetingReqDto, usernameFromToken);
     }
 }
