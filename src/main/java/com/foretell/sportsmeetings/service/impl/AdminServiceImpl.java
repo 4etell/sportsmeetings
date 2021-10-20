@@ -1,6 +1,7 @@
 package com.foretell.sportsmeetings.service.impl;
 
 import com.foretell.sportsmeetings.dto.req.AdminMeetingCategoryReqDto;
+import com.foretell.sportsmeetings.dto.res.MeetingCategoryResDto;
 import com.foretell.sportsmeetings.exception.RoleNotFoundException;
 import com.foretell.sportsmeetings.model.MeetingCategory;
 import com.foretell.sportsmeetings.model.Role;
@@ -57,11 +58,10 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public boolean createMeetingCategory(AdminMeetingCategoryReqDto adminMeetingCategoryReqDto) {
+    public MeetingCategoryResDto createMeetingCategory(AdminMeetingCategoryReqDto adminMeetingCategoryReqDto) {
         MeetingCategory meetingCategory = new MeetingCategory();
         meetingCategory.setName(adminMeetingCategoryReqDto.getName());
-        meetingCategoryService.create(meetingCategory);
-        return true;
+        return meetingCategoryService.create(meetingCategory);
     }
 
     @Override
