@@ -1,7 +1,7 @@
 package com.foretell.sportsmeetings.service.impl;
 
 import com.foretell.sportsmeetings.dto.res.MeetingCategoryResDto;
-import com.foretell.sportsmeetings.exception.MeetingCategoryNotFoundException;
+import com.foretell.sportsmeetings.exception.notfound.MeetingCategoryNotFoundException;
 import com.foretell.sportsmeetings.model.MeetingCategory;
 import com.foretell.sportsmeetings.repo.MeetingCategoryRepo;
 import com.foretell.sportsmeetings.service.MeetingCategoryService;

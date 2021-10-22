@@ -4,7 +4,7 @@ import com.foretell.sportsmeetings.dto.req.ProfileCommentReqDto;
 import com.foretell.sportsmeetings.dto.res.page.extnds.PageProfileCommentResDto;
 import com.foretell.sportsmeetings.dto.res.ProfileCommentResDto;
 import com.foretell.sportsmeetings.exception.ProfileCommentException;
-import com.foretell.sportsmeetings.exception.ProfileCommentNotFoundException;
+import com.foretell.sportsmeetings.exception.notfound.ProfileCommentNotFoundException;
 import com.foretell.sportsmeetings.model.ProfileComment;
 import com.foretell.sportsmeetings.model.User;
 import com.foretell.sportsmeetings.repo.ProfileCommentRepo;

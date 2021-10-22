@@ -2,7 +2,7 @@ package com.foretell.sportsmeetings.service.impl;
 
 import com.foretell.sportsmeetings.dto.req.AdminMeetingCategoryReqDto;
 import com.foretell.sportsmeetings.dto.res.MeetingCategoryResDto;
-import com.foretell.sportsmeetings.exception.RoleNotFoundException;
+import com.foretell.sportsmeetings.exception.notfound.RoleNotFoundException;
 import com.foretell.sportsmeetings.model.MeetingCategory;
 import com.foretell.sportsmeetings.model.Role;
 import com.foretell.sportsmeetings.model.User;
