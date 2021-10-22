@@ -18,7 +18,7 @@ public interface UserService {
 
     UserInfoResDto getUserInfoById(Long id);
 
-    boolean changeProfile(ProfileInfoReqDto profileInfoReqDto, String username);
+    UserInfoResDto changeProfile(ProfileInfoReqDto profileInfoReqDto, String username);
 
     boolean loadProfilePhoto(MultipartFile photo, String username) throws InvalidProfilePhotoException;
 }

@@ -93,7 +93,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean changeProfile(ProfileInfoReqDto profileInfoReqDto, String username) {
+    public UserInfoResDto changeProfile(ProfileInfoReqDto profileInfoReqDto, String username) {
         User user = findByUsername(username);
         user.setEmail(profileInfoReqDto.getEmail());
         user.setFirstName(profileInfoReqDto.getFirstName());
@@ -101,7 +101,7 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(profileInfoReqDto.getPassword()));
         User updatedUser = userRepo.save(user);
         log.info("IN changeProfile - user: {} successfully updated info", updatedUser);
-        return true;
+        return convertUserToUserInfoResDto(updatedUser);
     }
 
     @Override

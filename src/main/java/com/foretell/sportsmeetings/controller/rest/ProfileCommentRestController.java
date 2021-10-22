@@ -2,6 +2,7 @@ package com.foretell.sportsmeetings.controller.rest;
 
 import com.foretell.sportsmeetings.dto.req.ProfileCommentReqDto;
 import com.foretell.sportsmeetings.dto.res.ProfileCommentPageResDto;
+import com.foretell.sportsmeetings.dto.res.ProfileCommentResDto;
 import com.foretell.sportsmeetings.service.ProfileCommentService;
 import com.foretell.sportsmeetings.util.jwt.JwtProvider;
 import io.swagger.annotations.ApiImplicitParam;
@@ -32,14 +33,12 @@ public class ProfileCommentRestController {
     }
 
     @RequestMapping(value = "/comments", method = RequestMethod.POST)
-    public ResponseEntity<?> create(@RequestBody @Valid ProfileCommentReqDto profileCommentReqDto,
-                                    HttpServletRequest httpServletRequest) {
-        if (profileCommentService.create(profileCommentReqDto,
-                jwtProvider.getUsernameFromToken(jwtProvider.getTokenFromRequest(httpServletRequest)))) {
-            return ResponseEntity.ok().body("Comment successfully created");
-        } else {
-            return ResponseEntity.internalServerError().body("Something wrong on server");
-        }
+    public ProfileCommentResDto create(@RequestBody @Valid ProfileCommentReqDto profileCommentReqDto,
+                                       HttpServletRequest httpServletRequest) {
+        String usernameFromToken =
+                jwtProvider.getUsernameFromToken(jwtProvider.getTokenFromRequest(httpServletRequest));
+
+        return profileCommentService.create(profileCommentReqDto, usernameFromToken);
     }
 
     @ApiImplicitParams({
@@ -69,7 +68,7 @@ public class ProfileCommentRestController {
 
     @RequestMapping(value = "/my-comments/{commentId}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteMyComment(@PathVariable Long commentId,
-                                                         HttpServletRequest httpServletRequest) {
+                                             HttpServletRequest httpServletRequest) {
         String usernameFromToken = jwtProvider.getUsernameFromToken(
                 jwtProvider.getTokenFromRequest(httpServletRequest));
 
