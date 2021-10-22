@@ -3,6 +3,7 @@ package com.foretell.sportsmeetings.controller.handler.exception;
 import com.foretell.sportsmeetings.exception.AddingParticipantException;
 import com.foretell.sportsmeetings.exception.InvalidDateTimeReqDtoException;
 import com.foretell.sportsmeetings.exception.InvalidProfilePhotoException;
+import com.foretell.sportsmeetings.exception.MaxNumbOfMeetingParticipantsException;
 import com.foretell.sportsmeetings.exception.notfound.MeetingCategoryNotFoundException;
 import com.foretell.sportsmeetings.exception.notfound.MeetingNotFoundException;
 import com.foretell.sportsmeetings.exception.ProfileCommentException;
@@ -52,6 +53,13 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     })
     public ResponseEntity<?> handleNotFoundException(Exception ex, WebRequest request) {
         return ResponseEntity.status(404).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(value = {
+            MaxNumbOfMeetingParticipantsException.class
+    })
+    public ResponseEntity<?> handleMaxNumbOfMeetingParticipantsException(Exception ex, WebRequest request) {
+        return ResponseEntity.status(422).body(ex.getMessage());
     }
 
     @ExceptionHandler(value = {
