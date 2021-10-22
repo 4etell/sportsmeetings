@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -29,4 +31,8 @@ public class RequestToJoinMeeting extends AbstractEntity {
     @OneToOne
     @JoinColumn(name = "meeting_id")
     private Meeting meeting;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private RequestToJoinMeetingStatus status = RequestToJoinMeetingStatus.CREATED;
 }

@@ -1,6 +1,7 @@
-package com.foretell.sportsmeetings.controller;
+package com.foretell.sportsmeetings.controller.rest;
 
 import com.foretell.sportsmeetings.dto.req.AdminMeetingCategoryReqDto;
+import com.foretell.sportsmeetings.dto.res.MeetingCategoryResDto;
 import com.foretell.sportsmeetings.service.AdminService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -39,12 +40,8 @@ public class AdminRestController {
     }
 
     @PostMapping("meeting-categories")
-    public ResponseEntity<?> createMeetingCategory(@RequestBody AdminMeetingCategoryReqDto adminMeetingCategoryReqDto) {
-        if (adminService.createMeetingCategory(adminMeetingCategoryReqDto)) {
-            return ResponseEntity.ok("Successfully created");
-        } else {
-            return ResponseEntity.internalServerError().body("Something wrong on server");
-        }
+    public MeetingCategoryResDto createMeetingCategory(@RequestBody AdminMeetingCategoryReqDto adminMeetingCategoryReqDto) {
+       return adminService.createMeetingCategory(adminMeetingCategoryReqDto);
     }
 
     @DeleteMapping("comments/{id}")

@@ -1,6 +1,7 @@
 package com.foretell.sportsmeetings.service;
 
 import com.foretell.sportsmeetings.dto.req.AdminMeetingCategoryReqDto;
+import com.foretell.sportsmeetings.dto.res.MeetingCategoryResDto;
 
 public interface AdminService {
 
@@ -8,7 +9,7 @@ public interface AdminService {
 
     boolean deleteUserRoleBanned(Long userId);
 
-    boolean createMeetingCategory(AdminMeetingCategoryReqDto adminMeetingCategoryReqDto);
+    MeetingCategoryResDto createMeetingCategory(AdminMeetingCategoryReqDto adminMeetingCategoryReqDto);
 
     boolean deleteProfileCommentById(Long id);
 }

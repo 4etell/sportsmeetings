@@ -12,6 +12,6 @@ public interface MeetingCategoryService {
 
     MeetingCategoryResDto getById(Long id);
 
-    boolean create(MeetingCategory meetingCategory);
+    MeetingCategoryResDto create(MeetingCategory meetingCategory);
 
 }
