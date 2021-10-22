@@ -67,7 +67,7 @@ public class ProfileCommentRestController {
         return profileCommentService.getAllByUsername(pageable, usernameFromToken);
     }
 
-    @RequestMapping(value = "/my-comments/{commentId}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/my-comments/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteMyComment(@PathVariable Long commentId,
                                              HttpServletRequest httpServletRequest) {
         String usernameFromToken = jwtProvider.getUsernameFromToken(

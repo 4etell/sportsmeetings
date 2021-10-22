@@ -1,6 +1,7 @@
 package com.foretell.sportsmeetings.controller.rest;
 
 import com.foretell.sportsmeetings.dto.req.RequestToJoinMeetingReqDto;
+import com.foretell.sportsmeetings.dto.req.RequestToJoinMeetingStatusReqDto;
 import com.foretell.sportsmeetings.dto.res.RequestToJoinMeetingResDto;
 import com.foretell.sportsmeetings.service.RequestToJoinMeetingService;
 import com.foretell.sportsmeetings.util.jwt.JwtProvider;
@@ -8,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -49,5 +51,16 @@ public class RequestToJoinMeetingController {
                 jwtProvider.getUsernameFromToken(jwtProvider.getTokenFromRequest(httpServletRequest));
 
         return requestToJoinMeetingService.getByMeetingId(meetingId, usernameFromToken);
+    }
+
+    @PutMapping("{id}")
+    public RequestToJoinMeetingResDto updateStatus(
+            @PathVariable Long id,
+            @RequestBody @Valid RequestToJoinMeetingStatusReqDto requestToJoinMeetingStatusReqDto,
+            HttpServletRequest httpServletRequest) {
+        String usernameFromToken =
+                jwtProvider.getUsernameFromToken(jwtProvider.getTokenFromRequest(httpServletRequest));
+
+        return requestToJoinMeetingService.updateStatus(id, requestToJoinMeetingStatusReqDto, usernameFromToken);
     }
 }
