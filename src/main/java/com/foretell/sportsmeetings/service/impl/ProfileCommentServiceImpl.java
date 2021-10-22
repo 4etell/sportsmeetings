@@ -29,7 +29,7 @@ public class ProfileCommentServiceImpl implements ProfileCommentService {
     }
 
     @Override
-    public boolean create(ProfileCommentReqDto profileCommentReqDto, String username) {
+    public ProfileCommentResDto create(ProfileCommentReqDto profileCommentReqDto, String username) {
         User author = userService.findByUsername(username);
         User recipient = userService.findById(profileCommentReqDto.getRecipientId());
         if (author.getId().equals(recipient.getId())) {
@@ -39,8 +39,7 @@ public class ProfileCommentServiceImpl implements ProfileCommentService {
         profileComment.setAuthor(author);
         profileComment.setRecipient(recipient);
         profileComment.setText(profileCommentReqDto.getText());
-        profileCommentRepo.save(profileComment);
-        return true;
+       return convertProfileCommentToProfileCommentResDto(profileCommentRepo.save(profileComment));
     }
 
     @Override
