@@ -15,10 +15,10 @@ public class DateTimeReqDto {
     @Min(value = 1, message = "Min value of dayOfMonth is 1")
     @Max(value = 31, message = "Max value of dayOfMonth is 31")
     private final int dayOfMonth;
-    @Min(value = 1, message = "Min value of hourOfDay is 1")
-    @Max(value = 24, message = "Max value of hourOfDay is 24")
+    @Min(value = 0, message = "Min value of hourOfDay is 0")
+    @Max(value = 23, message = "Max value of hourOfDay is 23")
     private final int hourOfDay;
-    @Min(value = 1, message = "Min value of minuteOfDay is 1")
+    @Min(value = 0, message = "Min value of minuteOfDay is 0")
     @Max(value = 59, message = "Max value of minuteOfDay is 59")
     private final int minute;
 }

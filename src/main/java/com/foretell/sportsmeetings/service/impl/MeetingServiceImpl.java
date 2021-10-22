@@ -3,6 +3,7 @@ package com.foretell.sportsmeetings.service.impl;
 import com.foretell.sportsmeetings.dto.req.DateTimeReqDto;
 import com.foretell.sportsmeetings.dto.req.MeetingReqDto;
 import com.foretell.sportsmeetings.dto.res.MeetingResDto;
+import com.foretell.sportsmeetings.dto.res.page.extnds.PageMeetingResDto;
 import com.foretell.sportsmeetings.exception.InvalidDateTimeReqDtoException;
 import com.foretell.sportsmeetings.exception.MeetingNotFoundException;
 import com.foretell.sportsmeetings.model.Meeting;
@@ -12,11 +13,15 @@ import com.foretell.sportsmeetings.repo.MeetingRepo;
 import com.foretell.sportsmeetings.service.MeetingCategoryService;
 import com.foretell.sportsmeetings.service.MeetingService;
 import com.foretell.sportsmeetings.service.UserService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -38,6 +43,8 @@ public class MeetingServiceImpl implements MeetingService {
         User user = userService.findByUsername(username);
         MeetingCategory meetingCategory = meetingCategoryService.findById(meetingReqDto.getCategoryId());
         GregorianCalendar gregorianCalendarToMeeting = createGregorianCalendarToMeeting(meetingReqDto.getDateTimeReqDto());
+        Set<User> participants = new HashSet<>();
+        participants.add(user);
         Meeting meeting = new Meeting(
                 meetingCategory,
                 meetingReqDto.getDescription(),
@@ -46,7 +53,7 @@ public class MeetingServiceImpl implements MeetingService {
                 gregorianCalendarToMeeting,
                 meetingReqDto.getMaxNumbOfParticipants(),
                 user,
-                null
+                participants
         );
         return convertMeetingToMeetingResDto(meetingRepo.save(meeting));
     }
@@ -55,6 +62,27 @@ public class MeetingServiceImpl implements MeetingService {
     public Meeting findById(Long id) {
         return meetingRepo.findById(id)
                 .orElseThrow(() -> new MeetingNotFoundException("Meeting with id: " + (id) + " not found"));
+    }
+
+    @Override
+    public MeetingResDto getById(Long id) {
+        return convertMeetingToMeetingResDto(findById(id));
+    }
+
+    @Override
+    public PageMeetingResDto getAllByCreatorUsername(Pageable pageable, String username) {
+        User user = userService.findByUsername(username);
+        Page<Meeting> page = meetingRepo.findByCreatorId(pageable, user.getId());
+        List<MeetingResDto> meetingResDtoList =
+                page.getContent().stream()
+                        .map(this::convertMeetingToMeetingResDto)
+                        .collect(Collectors.toList());
+
+        return new PageMeetingResDto(
+                pageable.getPageNumber(),
+                page.getTotalPages(),
+                meetingResDtoList
+        );
     }
 
     private GregorianCalendar createGregorianCalendarToMeeting(DateTimeReqDto dateTimeReqDto) {
@@ -85,7 +113,8 @@ public class MeetingServiceImpl implements MeetingService {
     }
 
     private MeetingResDto convertMeetingToMeetingResDto(Meeting meeting) {
-        Set<User> participants = meeting.getParticipants();
+        List<Long> participantsIds = new ArrayList<>();
+        meeting.getParticipants().forEach(user -> participantsIds.add(user.getId()));
         return new MeetingResDto(
                 meeting.getId(),
                 meeting.getCategory().getId(),
@@ -95,8 +124,7 @@ public class MeetingServiceImpl implements MeetingService {
                 convertDateOfMeetingToString(meeting.getDate()),
                 meeting.getMaxNumbOfParticipants(),
                 meeting.getCreator().getId(),
-                participants != null ? participants.stream()
-                        .map(user -> user.getId()).collect(Collectors.toList()) : null
+                participantsIds
         );
     }
 

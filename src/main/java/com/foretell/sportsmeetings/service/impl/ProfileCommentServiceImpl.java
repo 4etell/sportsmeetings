@@ -1,7 +1,7 @@
 package com.foretell.sportsmeetings.service.impl;
 
 import com.foretell.sportsmeetings.dto.req.ProfileCommentReqDto;
-import com.foretell.sportsmeetings.dto.res.ProfileCommentPageResDto;
+import com.foretell.sportsmeetings.dto.res.page.extnds.PageProfileCommentResDto;
 import com.foretell.sportsmeetings.dto.res.ProfileCommentResDto;
 import com.foretell.sportsmeetings.exception.ProfileCommentException;
 import com.foretell.sportsmeetings.exception.ProfileCommentNotFoundException;
@@ -43,22 +43,23 @@ public class ProfileCommentServiceImpl implements ProfileCommentService {
     }
 
     @Override
-    public ProfileCommentPageResDto getAllByRecipientId(Pageable pageable, Long recipientId) {
+    public PageProfileCommentResDto getAllByRecipientId(Pageable pageable, Long recipientId) {
         Page<ProfileComment> page = profileCommentRepo.findAllByRecipientId(pageable, recipientId);
         List<ProfileCommentResDto> profileCommentResDtoList =
                 page.getContent().stream().
                         map(this::convertProfileCommentToProfileCommentResDto).
                         collect(Collectors.toList());
 
-        return new ProfileCommentPageResDto(
-                profileCommentResDtoList,
+
+        return new PageProfileCommentResDto(
                 pageable.getPageNumber(),
-                page.getTotalPages()
+                page.getTotalPages(),
+                profileCommentResDtoList
         );
     }
 
     @Override
-    public ProfileCommentPageResDto getAllByUsername(Pageable pageable, String username) {
+    public PageProfileCommentResDto getAllByUsername(Pageable pageable, String username) {
         User user = userService.findByUsername(username);
         Page<ProfileComment> page = profileCommentRepo.findAllByRecipientId(pageable, user.getId());
         List<ProfileCommentResDto> profileCommentResDtoList =
@@ -66,10 +67,10 @@ public class ProfileCommentServiceImpl implements ProfileCommentService {
                         map(this::convertProfileCommentToProfileCommentResDto).
                         collect(Collectors.toList());
 
-        return new ProfileCommentPageResDto(
-                profileCommentResDtoList,
+        return new PageProfileCommentResDto(
                 pageable.getPageNumber(),
-                page.getTotalPages()
+                page.getTotalPages(),
+                profileCommentResDtoList
         );
     }
 

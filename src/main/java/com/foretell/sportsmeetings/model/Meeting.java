@@ -7,7 +7,9 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -50,6 +52,9 @@ public class Meeting extends AbstractEntity {
     @JoinColumn(name = "creator_id")
     private User creator;
 
-    @ManyToMany(mappedBy = "meetings")
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "meeting_participants",
+            joinColumns = {@JoinColumn(name = "meeting_id", referencedColumnName = "id")},
+            inverseJoinColumns = {@JoinColumn(name = "participant_id", referencedColumnName = "id")})
     private Set<User> participants = new HashSet<User>();
 }

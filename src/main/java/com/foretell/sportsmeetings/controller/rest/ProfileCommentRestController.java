@@ -1,7 +1,7 @@
 package com.foretell.sportsmeetings.controller.rest;
 
 import com.foretell.sportsmeetings.dto.req.ProfileCommentReqDto;
-import com.foretell.sportsmeetings.dto.res.ProfileCommentPageResDto;
+import com.foretell.sportsmeetings.dto.res.page.extnds.PageProfileCommentResDto;
 import com.foretell.sportsmeetings.dto.res.ProfileCommentResDto;
 import com.foretell.sportsmeetings.service.ProfileCommentService;
 import com.foretell.sportsmeetings.util.jwt.JwtProvider;
@@ -46,7 +46,7 @@ public class ProfileCommentRestController {
                     value = "Results page you want to retrieve (0..N)"),
     })
     @GetMapping("comments/{recipientId}")
-    public ProfileCommentPageResDto getCommentsByRecipientId(
+    public PageProfileCommentResDto getCommentsByRecipientId(
             @PathVariable Long recipientId,
             @PageableDefault(size = 3, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable) {
         return profileCommentService.getAllByRecipientId(pageable, recipientId);
@@ -57,7 +57,7 @@ public class ProfileCommentRestController {
                     value = "Results page you want to retrieve (0..N)"),
     })
     @GetMapping("my-profile-comments")
-    public ProfileCommentPageResDto getMyComments(
+    public PageProfileCommentResDto getMyComments(
             HttpServletRequest httpServletRequest,
             @PageableDefault(size = 3, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable) {
 
