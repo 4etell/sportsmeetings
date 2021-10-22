@@ -7,10 +7,10 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-public class MeetingPageResDto extends PageResDto {
+public class PageMeetingResDto extends PageResDto {
     private final List<MeetingResDto> meetings;
 
-    public MeetingPageResDto(int currentPage, int totalPage, List<MeetingResDto> meetings) {
+    public PageMeetingResDto(int currentPage, int totalPage, List<MeetingResDto> meetings) {
         super(currentPage, totalPage);
         this.meetings = meetings;
     }
