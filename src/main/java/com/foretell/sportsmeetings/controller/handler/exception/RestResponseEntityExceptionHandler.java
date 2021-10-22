@@ -1,15 +1,18 @@
 package com.foretell.sportsmeetings.controller.handler.exception;
 
+import com.foretell.sportsmeetings.exception.AddingParticipantException;
 import com.foretell.sportsmeetings.exception.InvalidDateTimeReqDtoException;
 import com.foretell.sportsmeetings.exception.InvalidProfilePhotoException;
-import com.foretell.sportsmeetings.exception.MeetingCategoryNotFoundException;
-import com.foretell.sportsmeetings.exception.MeetingNotFoundException;
+import com.foretell.sportsmeetings.exception.MaxNumbOfMeetingParticipantsException;
+import com.foretell.sportsmeetings.exception.notfound.MeetingCategoryNotFoundException;
+import com.foretell.sportsmeetings.exception.notfound.MeetingNotFoundException;
 import com.foretell.sportsmeetings.exception.ProfileCommentException;
-import com.foretell.sportsmeetings.exception.ProfileCommentNotFoundException;
+import com.foretell.sportsmeetings.exception.notfound.ProfileCommentNotFoundException;
 import com.foretell.sportsmeetings.exception.RequestToJoinMeetingException;
-import com.foretell.sportsmeetings.exception.RequestToJoinMeetingNotFoundException;
-import com.foretell.sportsmeetings.exception.RoleNotFoundException;
-import com.foretell.sportsmeetings.exception.UserNotFoundException;
+import com.foretell.sportsmeetings.exception.notfound.RequestToJoinMeetingNotFoundException;
+import com.foretell.sportsmeetings.exception.notfound.RoleNotFoundException;
+import com.foretell.sportsmeetings.exception.UserHaveNotPermissionException;
+import com.foretell.sportsmeetings.exception.notfound.UserNotFoundException;
 import com.foretell.sportsmeetings.exception.UsernameAlreadyExistsException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -53,6 +56,21 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     }
 
     @ExceptionHandler(value = {
+            MaxNumbOfMeetingParticipantsException.class
+    })
+    public ResponseEntity<?> handleMaxNumbOfMeetingParticipantsException(Exception ex, WebRequest request) {
+        return ResponseEntity.status(422).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(value = {
+            UserHaveNotPermissionException.class
+    })
+    public ResponseEntity<?> handleUserHaveNotPermissionException(Exception ex, WebRequest request) {
+        return ResponseEntity.status(403).body(ex.getMessage());
+    }
+
+
+    @ExceptionHandler(value = {
             UsernameAlreadyExistsException.class
     })
     public ResponseEntity<?> handleUsernameAlreadyExistsException(Exception ex, WebRequest request) {
@@ -86,6 +104,13 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     })
     public ResponseEntity<?> handleRequestToJoinMeetingException(Exception ex, WebRequest request) {
         return ResponseEntity.status(400).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(value = {
+            AddingParticipantException.class
+    })
+    public ResponseEntity<?> handleAddingParticipantException(Exception ex, WebRequest request) {
+        return ResponseEntity.status(500).body(ex.getMessage());
     }
 
 

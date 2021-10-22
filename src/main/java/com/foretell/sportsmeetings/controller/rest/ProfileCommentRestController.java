@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
@@ -45,9 +46,9 @@ public class ProfileCommentRestController {
             @ApiImplicitParam(name = "page", dataType = "integer", paramType = "query",
                     value = "Results page you want to retrieve (0..N)"),
     })
-    @GetMapping("comments/{recipientId}")
+    @RequestMapping(value = "/comments", method = RequestMethod.GET)
     public PageProfileCommentResDto getCommentsByRecipientId(
-            @PathVariable Long recipientId,
+            @RequestParam Long recipientId,
             @PageableDefault(size = 3, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable) {
         return profileCommentService.getAllByRecipientId(pageable, recipientId);
     }
@@ -66,7 +67,7 @@ public class ProfileCommentRestController {
         return profileCommentService.getAllByUsername(pageable, usernameFromToken);
     }
 
-    @RequestMapping(value = "/my-comments/{commentId}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/my-comments/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteMyComment(@PathVariable Long commentId,
                                              HttpServletRequest httpServletRequest) {
         String usernameFromToken = jwtProvider.getUsernameFromToken(

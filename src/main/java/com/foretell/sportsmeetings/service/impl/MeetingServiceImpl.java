@@ -4,8 +4,10 @@ import com.foretell.sportsmeetings.dto.req.DateTimeReqDto;
 import com.foretell.sportsmeetings.dto.req.MeetingReqDto;
 import com.foretell.sportsmeetings.dto.res.MeetingResDto;
 import com.foretell.sportsmeetings.dto.res.page.extnds.PageMeetingResDto;
+import com.foretell.sportsmeetings.exception.AddingParticipantException;
 import com.foretell.sportsmeetings.exception.InvalidDateTimeReqDtoException;
-import com.foretell.sportsmeetings.exception.MeetingNotFoundException;
+import com.foretell.sportsmeetings.exception.notfound.MeetingNotFoundException;
+import com.foretell.sportsmeetings.exception.UserHaveNotPermissionException;
 import com.foretell.sportsmeetings.model.Meeting;
 import com.foretell.sportsmeetings.model.MeetingCategory;
 import com.foretell.sportsmeetings.model.User;
@@ -72,17 +74,32 @@ public class MeetingServiceImpl implements MeetingService {
     @Override
     public PageMeetingResDto getAllByCreatorUsername(Pageable pageable, String username) {
         User user = userService.findByUsername(username);
-        Page<Meeting> page = meetingRepo.findByCreatorId(pageable, user.getId());
-        List<MeetingResDto> meetingResDtoList =
-                page.getContent().stream()
-                        .map(this::convertMeetingToMeetingResDto)
-                        .collect(Collectors.toList());
+        Page<Meeting> page = meetingRepo.findAllByCreatorId(pageable, user.getId());
+        return convertMeetingPageToPageMeetingResDto(page, pageable);
+    }
 
-        return new PageMeetingResDto(
-                pageable.getPageNumber(),
-                page.getTotalPages(),
-                meetingResDtoList
-        );
+    @Override
+    public PageMeetingResDto getAllWhereParticipantNotCreatorByParticipantUsername(Pageable pageable, String username) {
+        User user = userService.findByUsername(username);
+        Page<Meeting> page = meetingRepo.findAllWhereParticipantNotCreatorByParticipantId(pageable, user.getId());
+        return convertMeetingPageToPageMeetingResDto(page, pageable);
+    }
+
+    @Override
+    public MeetingResDto addParticipantInMeeting(Long meetingId, Long participantId, String username) {
+        Meeting meeting = findById(meetingId);
+        User user = userService.findByUsername(username);
+        User participant = userService.findById(participantId);
+        if (meeting.getCreator().getId().equals(user.getId())) {
+            if (meeting.addParticipant(participant)) {
+                Meeting updatedMeeting = meetingRepo.save(meeting);
+                return convertMeetingToMeetingResDto(updatedMeeting);
+            } else {
+                throw new AddingParticipantException("Server cannot add this participantId: " + participantId);
+            }
+        } else {
+            throw new UserHaveNotPermissionException("Only creator can add participants");
+        }
     }
 
     private GregorianCalendar createGregorianCalendarToMeeting(DateTimeReqDto dateTimeReqDto) {
@@ -112,6 +129,21 @@ public class MeetingServiceImpl implements MeetingService {
         }
     }
 
+
+    private String convertDateOfMeetingToString(GregorianCalendar gregorianCalendar) {
+        int calendarDay = gregorianCalendar.get(Calendar.DAY_OF_MONTH);
+        int calendarMonth = gregorianCalendar.get(Calendar.MONTH) + 1;
+        int calendarHour = gregorianCalendar.get(Calendar.HOUR_OF_DAY);
+        int calendarMinute = gregorianCalendar.get(Calendar.MINUTE);
+
+        String day = calendarDay < 10 ? "0" + calendarDay : String.valueOf(calendarDay);
+        String month = calendarMonth < 10 ? "0" + calendarMonth : String.valueOf(calendarMonth);
+        String hour = calendarHour < 10 ? "0" + calendarHour : String.valueOf(calendarHour);
+        String minute = calendarMinute < 10 ? "0" + calendarMinute : String.valueOf(calendarMinute);
+
+        return day + "." + month + " / " + hour + ":" + minute;
+    }
+
     private MeetingResDto convertMeetingToMeetingResDto(Meeting meeting) {
         List<Long> participantsIds = new ArrayList<>();
         meeting.getParticipants().forEach(user -> participantsIds.add(user.getId()));
@@ -128,17 +160,17 @@ public class MeetingServiceImpl implements MeetingService {
         );
     }
 
-    private String convertDateOfMeetingToString(GregorianCalendar gregorianCalendar) {
-        int calendarDay = gregorianCalendar.get(Calendar.DAY_OF_MONTH);
-        int calendarMonth = gregorianCalendar.get(Calendar.MONTH);
-        int calendarHour = gregorianCalendar.get(Calendar.HOUR_OF_DAY);
-        int calendarMinute = gregorianCalendar.get(Calendar.MINUTE);
+    private PageMeetingResDto convertMeetingPageToPageMeetingResDto(Page<Meeting> page, Pageable pageable) {
+        List<MeetingResDto> meetingResDtoList =
+                page.getContent().stream()
+                        .map(this::convertMeetingToMeetingResDto)
+                        .collect(Collectors.toList());
 
-        String day = calendarDay < 10 ? "0" + calendarDay : String.valueOf(calendarDay);
-        String month = calendarMonth < 10 ? "0" + calendarMonth : String.valueOf(calendarMonth);
-        String hour = calendarHour < 10 ? "0" + calendarHour : String.valueOf(calendarHour);
-        String minute = calendarMinute < 10 ? "0" + calendarMinute : String.valueOf(calendarMinute);
-
-        return day + "." + month + " / " + hour + ":" + minute;
+        return new PageMeetingResDto(
+                pageable.getPageNumber(),
+                page.getTotalPages(),
+                meetingResDtoList
+        );
     }
+
 }

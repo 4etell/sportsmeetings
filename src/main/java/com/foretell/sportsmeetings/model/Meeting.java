@@ -1,5 +1,6 @@
 package com.foretell.sportsmeetings.model;
 
+import com.foretell.sportsmeetings.exception.MaxNumbOfMeetingParticipantsException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -57,4 +58,12 @@ public class Meeting extends AbstractEntity {
             joinColumns = {@JoinColumn(name = "meeting_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "participant_id", referencedColumnName = "id")})
     private Set<User> participants = new HashSet<User>();
+
+    public boolean addParticipant(User user) {
+        if (maxNumbOfParticipants != participants.size()) {
+            return participants.add(user);
+        } else {
+            throw new MaxNumbOfMeetingParticipantsException("All places of participants are taken");
+        }
+    }
 }

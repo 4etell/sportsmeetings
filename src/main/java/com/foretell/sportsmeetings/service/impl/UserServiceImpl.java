@@ -4,8 +4,8 @@ import com.foretell.sportsmeetings.dto.req.ProfileInfoReqDto;
 import com.foretell.sportsmeetings.dto.req.RegistrationReqDto;
 import com.foretell.sportsmeetings.dto.res.UserInfoResDto;
 import com.foretell.sportsmeetings.exception.InvalidProfilePhotoException;
-import com.foretell.sportsmeetings.exception.RoleNotFoundException;
-import com.foretell.sportsmeetings.exception.UserNotFoundException;
+import com.foretell.sportsmeetings.exception.notfound.RoleNotFoundException;
+import com.foretell.sportsmeetings.exception.notfound.UserNotFoundException;
 import com.foretell.sportsmeetings.exception.UsernameAlreadyExistsException;
 import com.foretell.sportsmeetings.model.Role;
 import com.foretell.sportsmeetings.model.User;
@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -110,7 +111,7 @@ public class UserServiceImpl implements UserService {
             throw new InvalidProfilePhotoException("Photo is empty");
         }
         User user = findByUsername(username);
-        String suffix = photo.getOriginalFilename().substring(photo.getOriginalFilename().lastIndexOf(".") + 1);
+        String suffix = Objects.requireNonNull(photo.getOriginalFilename()).substring(photo.getOriginalFilename().lastIndexOf(".") + 1);
         if (suffix.equalsIgnoreCase("jpg") ||
                 suffix.equalsIgnoreCase("jpeg") ||
                 suffix.equalsIgnoreCase("png")) {
