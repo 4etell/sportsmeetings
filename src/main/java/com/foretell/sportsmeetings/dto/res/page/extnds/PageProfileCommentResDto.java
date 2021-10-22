@@ -7,10 +7,10 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-public class ProfileCommentPageResDto extends PageResDto {
+public class PageProfileCommentResDto extends PageResDto {
     private final List<ProfileCommentResDto> comments;
 
-    public ProfileCommentPageResDto(int currentPage, int totalPage, List<ProfileCommentResDto> comments) {
+    public PageProfileCommentResDto(int currentPage, int totalPage, List<ProfileCommentResDto> comments) {
         super(currentPage, totalPage);
         this.comments = comments;
     }
