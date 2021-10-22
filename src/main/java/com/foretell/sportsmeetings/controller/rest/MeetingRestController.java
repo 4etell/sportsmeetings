@@ -14,10 +14,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import javax.websocket.server.PathParam;
 
 @RestController
 public class MeetingRestController {
@@ -42,6 +44,15 @@ public class MeetingRestController {
     @RequestMapping(value = "/meetings/{id}", method = RequestMethod.GET)
     public MeetingResDto getById(@PathVariable Long id) {
         return meetingService.getById(id);
+    }
+
+    @RequestMapping(value = "/meetings/{id}", method = RequestMethod.PUT)
+    public MeetingResDto addParticipantInMeeting(@PathVariable Long id,
+                                                 @RequestParam Long participantId,
+                                                 HttpServletRequest httpServletRequest) {
+        String usernameFromToken =
+                jwtProvider.getUsernameFromToken(jwtProvider.getTokenFromRequest(httpServletRequest));
+        return meetingService.addParticipantInMeeting(id, participantId, usernameFromToken);
     }
 
 
@@ -74,5 +85,6 @@ public class MeetingRestController {
 
         return meetingService.getAllWhereParticipantNotCreatorByParticipantUsername(pageable, usernameFromToken);
     }
+
 
 }

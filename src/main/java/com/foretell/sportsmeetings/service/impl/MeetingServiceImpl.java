@@ -4,8 +4,10 @@ import com.foretell.sportsmeetings.dto.req.DateTimeReqDto;
 import com.foretell.sportsmeetings.dto.req.MeetingReqDto;
 import com.foretell.sportsmeetings.dto.res.MeetingResDto;
 import com.foretell.sportsmeetings.dto.res.page.extnds.PageMeetingResDto;
+import com.foretell.sportsmeetings.exception.AddingParticipantException;
 import com.foretell.sportsmeetings.exception.InvalidDateTimeReqDtoException;
 import com.foretell.sportsmeetings.exception.MeetingNotFoundException;
+import com.foretell.sportsmeetings.exception.UserHaveNotPermissionException;
 import com.foretell.sportsmeetings.model.Meeting;
 import com.foretell.sportsmeetings.model.MeetingCategory;
 import com.foretell.sportsmeetings.model.User;
@@ -81,6 +83,23 @@ public class MeetingServiceImpl implements MeetingService {
         User user = userService.findByUsername(username);
         Page<Meeting> page = meetingRepo.findAllWhereParticipantNotCreatorByParticipantId(pageable, user.getId());
         return convertMeetingPageToPageMeetingResDto(page, pageable);
+    }
+
+    @Override
+    public MeetingResDto addParticipantInMeeting(Long meetingId, Long participantId, String username) {
+        Meeting meeting = findById(meetingId);
+        User user = userService.findByUsername(username);
+        User participant = userService.findById(participantId);
+        if (meeting.getCreator().getId().equals(user.getId())) {
+            if (meeting.addParticipant(participant)) {
+                Meeting updatedMeeting = meetingRepo.save(meeting);
+                return convertMeetingToMeetingResDto(updatedMeeting);
+            } else {
+                throw new AddingParticipantException("Server cannot add this participantId: " + participantId);
+            }
+        } else {
+            throw new UserHaveNotPermissionException("Only creator can add participants");
+        }
     }
 
     private GregorianCalendar createGregorianCalendarToMeeting(DateTimeReqDto dateTimeReqDto) {
