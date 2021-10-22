@@ -1,7 +1,7 @@
 package com.foretell.sportsmeetings.service.impl;
 
 import com.foretell.sportsmeetings.dto.req.ProfileCommentReqDto;
-import com.foretell.sportsmeetings.dto.res.ProfileCommentPageResDto;
+import com.foretell.sportsmeetings.dto.res.page.extnds.ProfileCommentPageResDto;
 import com.foretell.sportsmeetings.dto.res.ProfileCommentResDto;
 import com.foretell.sportsmeetings.exception.ProfileCommentException;
 import com.foretell.sportsmeetings.exception.ProfileCommentNotFoundException;
@@ -50,10 +50,11 @@ public class ProfileCommentServiceImpl implements ProfileCommentService {
                         map(this::convertProfileCommentToProfileCommentResDto).
                         collect(Collectors.toList());
 
+
         return new ProfileCommentPageResDto(
-                profileCommentResDtoList,
                 pageable.getPageNumber(),
-                page.getTotalPages()
+                page.getTotalPages(),
+                profileCommentResDtoList
         );
     }
 
@@ -67,9 +68,9 @@ public class ProfileCommentServiceImpl implements ProfileCommentService {
                         collect(Collectors.toList());
 
         return new ProfileCommentPageResDto(
-                profileCommentResDtoList,
                 pageable.getPageNumber(),
-                page.getTotalPages()
+                page.getTotalPages(),
+                profileCommentResDtoList
         );
     }
 

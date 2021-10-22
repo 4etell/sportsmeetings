@@ -1,7 +1,7 @@
 package com.foretell.sportsmeetings.service;
 
 import com.foretell.sportsmeetings.dto.req.ProfileCommentReqDto;
-import com.foretell.sportsmeetings.dto.res.ProfileCommentPageResDto;
+import com.foretell.sportsmeetings.dto.res.page.extnds.ProfileCommentPageResDto;
 import com.foretell.sportsmeetings.dto.res.ProfileCommentResDto;
 import com.foretell.sportsmeetings.model.ProfileComment;
 import org.springframework.data.domain.Pageable;
