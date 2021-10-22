@@ -38,15 +38,12 @@ public class MyProfileRestController {
     }
 
     @PutMapping("info")
-    public ResponseEntity<?> changeInfo(@RequestBody @Valid ProfileInfoReqDto profileInfoReqDto,
-                                        HttpServletRequest httpServletRequest) {
+    public UserInfoResDto changeInfo(@RequestBody @Valid ProfileInfoReqDto profileInfoReqDto,
+                                     HttpServletRequest httpServletRequest) {
         String usernameFromToken =
                 jwtProvider.getUsernameFromToken(jwtProvider.getTokenFromRequest(httpServletRequest));
-        if (userService.changeProfile(profileInfoReqDto, usernameFromToken)) {
-            return ResponseEntity.ok("Profile info changed successfully");
-        } else {
-            return ResponseEntity.status(500).body("Something wrong on server");
-        }
+
+        return userService.changeProfile(profileInfoReqDto, usernameFromToken);
     }
 
     @PutMapping("photo")
