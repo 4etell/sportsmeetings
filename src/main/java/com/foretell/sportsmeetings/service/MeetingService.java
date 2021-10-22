@@ -14,4 +14,6 @@ public interface MeetingService {
     MeetingResDto getById(Long id);
 
     PageMeetingResDto getAllByCreatorUsername(Pageable pageable, String username);
+
+    PageMeetingResDto getAllWhereParticipantNotCreatorByParticipantUsername(Pageable pageable, String username);
 }

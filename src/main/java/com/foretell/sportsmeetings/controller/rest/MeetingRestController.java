@@ -60,4 +60,19 @@ public class MeetingRestController {
         return meetingService.getAllByCreatorUsername(pageable, usernameFromToken);
     }
 
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page", dataType = "integer", paramType = "query",
+                    value = "Results page you want to retrieve (0..N)"),
+    })
+    @RequestMapping(value = "my-attended-meetings", method = RequestMethod.GET)
+    public PageMeetingResDto getMyAttendedMeetings(
+            HttpServletRequest httpServletRequest,
+            @PageableDefault(size = 3, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable) {
+
+        String usernameFromToken =
+                jwtProvider.getUsernameFromToken(jwtProvider.getTokenFromRequest(httpServletRequest));
+
+        return meetingService.getAllWhereParticipantNotCreatorByParticipantUsername(pageable, usernameFromToken);
+    }
+
 }
