@@ -39,39 +39,20 @@ public class ProfileCommentServiceImpl implements ProfileCommentService {
         profileComment.setAuthor(author);
         profileComment.setRecipient(recipient);
         profileComment.setText(profileCommentReqDto.getText());
-       return convertProfileCommentToProfileCommentResDto(profileCommentRepo.save(profileComment));
+        return convertProfileCommentToProfileCommentResDto(profileCommentRepo.save(profileComment));
     }
 
     @Override
     public PageProfileCommentResDto getAllByRecipientId(Pageable pageable, Long recipientId) {
         Page<ProfileComment> page = profileCommentRepo.findAllByRecipientId(pageable, recipientId);
-        List<ProfileCommentResDto> profileCommentResDtoList =
-                page.getContent().stream().
-                        map(this::convertProfileCommentToProfileCommentResDto).
-                        collect(Collectors.toList());
-
-
-        return new PageProfileCommentResDto(
-                pageable.getPageNumber(),
-                page.getTotalPages(),
-                profileCommentResDtoList
-        );
+        return convertPageProfileCommentToPageProfileCommentResDto(page, pageable);
     }
 
     @Override
     public PageProfileCommentResDto getAllByUsername(Pageable pageable, String username) {
         User user = userService.findByUsername(username);
         Page<ProfileComment> page = profileCommentRepo.findAllByRecipientId(pageable, user.getId());
-        List<ProfileCommentResDto> profileCommentResDtoList =
-                page.getContent().stream().
-                        map(this::convertProfileCommentToProfileCommentResDto).
-                        collect(Collectors.toList());
-
-        return new PageProfileCommentResDto(
-                pageable.getPageNumber(),
-                page.getTotalPages(),
-                profileCommentResDtoList
-        );
+        return convertPageProfileCommentToPageProfileCommentResDto(page, pageable);
     }
 
     @Override
@@ -104,4 +85,20 @@ public class ProfileCommentServiceImpl implements ProfileCommentService {
                 profileComment.getAuthor().getId(),
                 profileComment.getText());
     }
+
+    private PageProfileCommentResDto convertPageProfileCommentToPageProfileCommentResDto(Page<ProfileComment> page,
+                                                                                         Pageable pageable) {
+
+        List<ProfileCommentResDto> profileCommentResDtoList =
+                page.getContent().stream().
+                        map(this::convertProfileCommentToProfileCommentResDto).
+                        collect(Collectors.toList());
+
+        return new PageProfileCommentResDto(
+                pageable.getPageNumber(),
+                page.getTotalPages(),
+                profileCommentResDtoList
+        );
+    }
+
 }
