@@ -12,6 +12,7 @@ import com.foretell.sportsmeetings.service.AdminService;
 import com.foretell.sportsmeetings.service.MeetingCategoryService;
 import com.foretell.sportsmeetings.service.ProfileCommentService;
 import com.foretell.sportsmeetings.service.UserService;
+import com.foretell.sportsmeetings.util.string.NamingUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -60,7 +61,7 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public MeetingCategoryResDto createMeetingCategory(AdminMeetingCategoryReqDto adminMeetingCategoryReqDto) {
         MeetingCategory meetingCategory = new MeetingCategory();
-        meetingCategory.setName(adminMeetingCategoryReqDto.getName());
+        meetingCategory.setName(NamingUtil.generateCapitalizedString(adminMeetingCategoryReqDto.getName()));
         return meetingCategoryService.create(meetingCategory);
     }
 
