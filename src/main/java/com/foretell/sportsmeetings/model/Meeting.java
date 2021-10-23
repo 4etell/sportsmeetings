@@ -28,7 +28,7 @@ import java.util.Set;
 public class Meeting extends AbstractEntity {
 
     @OneToOne
-    @JoinColumn(name = "meeting_category_id")
+    @JoinColumn(name = "category_id")
     @NotNull
     private MeetingCategory category;
 

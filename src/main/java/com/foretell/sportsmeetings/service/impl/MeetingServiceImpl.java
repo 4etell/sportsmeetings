@@ -86,6 +86,17 @@ public class MeetingServiceImpl implements MeetingService {
     }
 
     @Override
+    public PageMeetingResDto getAllByCategoryAndDistance(Pageable pageable, List<Long> categoryIds, Integer distance) {
+        if (categoryIds == null) {
+            Page<Meeting> page = meetingRepo.findAllByDistance(pageable, distance);
+           return convertMeetingPageToPageMeetingResDto(page, pageable);
+        } else {
+            Page<Meeting> page = meetingRepo.findAllByDistanceAndCategoryIds(pageable, categoryIds);
+            return convertMeetingPageToPageMeetingResDto(page, pageable);
+        }
+    }
+
+    @Override
     public MeetingResDto addParticipantInMeeting(Long meetingId, Long participantId, String username) {
         Meeting meeting = findById(meetingId);
         User user = userService.findByUsername(username);

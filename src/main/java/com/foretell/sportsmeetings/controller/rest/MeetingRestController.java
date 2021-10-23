@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import javax.websocket.server.PathParam;
+import java.util.List;
 
 @RestController
 public class MeetingRestController {
@@ -40,6 +40,18 @@ public class MeetingRestController {
         return meetingService.createMeeting(meetingReqDto, usernameFromToken);
     }
 
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page", dataType = "integer", paramType = "query",
+                    value = "Results page you want to retrieve (0..N)"),
+    })
+    @RequestMapping(value = "/meetings", method = RequestMethod.GET)
+    public PageMeetingResDto getMeetings(
+            @RequestParam(required = false) List<Long> categoryIds,
+            @RequestParam Integer distance,
+            @PageableDefault(size = 3, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable) {
+
+        return meetingService.getAllByCategoryAndDistance(pageable, categoryIds, distance);
+    }
 
     @RequestMapping(value = "/meetings/{id}", method = RequestMethod.GET)
     public MeetingResDto getById(@PathVariable Long id) {
@@ -52,6 +64,7 @@ public class MeetingRestController {
                                                  HttpServletRequest httpServletRequest) {
         String usernameFromToken =
                 jwtProvider.getUsernameFromToken(jwtProvider.getTokenFromRequest(httpServletRequest));
+
         return meetingService.addParticipantInMeeting(id, participantId, usernameFromToken);
     }
 
