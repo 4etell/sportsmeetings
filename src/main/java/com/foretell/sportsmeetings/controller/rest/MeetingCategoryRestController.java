@@ -1,7 +1,13 @@
 package com.foretell.sportsmeetings.controller.rest;
 
 import com.foretell.sportsmeetings.dto.res.MeetingCategoryResDto;
+import com.foretell.sportsmeetings.dto.res.page.extnds.PageMeetingCategoryResDto;
 import com.foretell.sportsmeetings.service.MeetingCategoryService;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,9 +25,14 @@ public class MeetingCategoryRestController {
         this.meetingCategoryService = meetingCategoryService;
     }
 
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page", dataType = "integer", paramType = "query",
+                    value = "Results page you want to retrieve (0..N)"),
+    })
     @GetMapping
-    public List<MeetingCategoryResDto> getAll() {
-        return meetingCategoryService.getAll();
+    public PageMeetingCategoryResDto getAll(
+            @PageableDefault(size = 20, sort = {"name"}) Pageable pageable) {
+        return meetingCategoryService.getAll(pageable);
     }
 
     @GetMapping("{id}")
