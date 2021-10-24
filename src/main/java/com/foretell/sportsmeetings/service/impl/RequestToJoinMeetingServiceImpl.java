@@ -3,6 +3,7 @@ package com.foretell.sportsmeetings.service.impl;
 import com.foretell.sportsmeetings.dto.req.RequestToJoinMeetingReqDto;
 import com.foretell.sportsmeetings.dto.req.RequestToJoinMeetingStatusReqDto;
 import com.foretell.sportsmeetings.dto.res.RequestToJoinMeetingResDto;
+import com.foretell.sportsmeetings.dto.res.page.extnds.PageRequestToJoinMeetingResDto;
 import com.foretell.sportsmeetings.exception.RequestToJoinMeetingException;
 import com.foretell.sportsmeetings.exception.UserHaveNotPermissionException;
 import com.foretell.sportsmeetings.exception.notfound.RequestToJoinMeetingNotFoundException;
@@ -14,6 +15,8 @@ import com.foretell.sportsmeetings.repo.RequestToJoinMeetingRepo;
 import com.foretell.sportsmeetings.service.MeetingService;
 import com.foretell.sportsmeetings.service.RequestToJoinMeetingService;
 import com.foretell.sportsmeetings.service.UserService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -58,15 +61,17 @@ public class RequestToJoinMeetingServiceImpl implements RequestToJoinMeetingServ
     }
 
     @Override
-    public List<RequestToJoinMeetingResDto> getByMeetingId(Long meetingId, String username) {
+    public PageRequestToJoinMeetingResDto getByMeetingId(Long meetingId, String username, Pageable pageable) {
         User user = userService.findByUsername(username);
         Meeting meeting = meetingService.findById(meetingId);
         if (meeting.getCreator().getId().equals(user.getId())) {
-            return requestToJoinMeetingRepo.findAllByMeetingId(meeting.getId())
-                    .stream()
-                    .filter(requestToJoinMeeting -> requestToJoinMeeting.getStatus() == RequestToJoinMeetingStatus.CREATED)
-                    .map(this::convertRequestToJoinMeetingToRequestToJoinMeetingResDto)
-                    .collect(Collectors.toList());
+            Page<RequestToJoinMeeting> page =
+                    requestToJoinMeetingRepo.findAllWhereByMeetingIdAndStatus(
+                            meeting.getId(),
+                            RequestToJoinMeetingStatus.CREATED.toString(),
+                            pageable);
+
+            return convertPageRequestToJoinMeetingToPageRequestToJoinMeetingResDto(page, pageable);
         } else {
             throw new UserHaveNotPermissionException("You can get requests only for your meeting");
         }
@@ -101,6 +106,22 @@ public class RequestToJoinMeetingServiceImpl implements RequestToJoinMeetingServ
                 requestToJoinMeeting.getMeeting().getId(),
                 requestToJoinMeeting.getCreator().getId(),
                 requestToJoinMeeting.getDescription());
+    }
+
+    private PageRequestToJoinMeetingResDto convertPageRequestToJoinMeetingToPageRequestToJoinMeetingResDto(
+            Page<RequestToJoinMeeting> page,
+            Pageable pageable) {
+
+        List<RequestToJoinMeetingResDto> requests =
+                page.getContent().stream()
+                        .map(this::convertRequestToJoinMeetingToRequestToJoinMeetingResDto)
+                        .collect(Collectors.toList());
+
+        return new PageRequestToJoinMeetingResDto(
+                pageable.getPageNumber(),
+                page.getTotalPages(),
+                requests
+        );
     }
 
 }
