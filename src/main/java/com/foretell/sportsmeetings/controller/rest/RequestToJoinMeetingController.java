@@ -3,8 +3,14 @@ package com.foretell.sportsmeetings.controller.rest;
 import com.foretell.sportsmeetings.dto.req.RequestToJoinMeetingReqDto;
 import com.foretell.sportsmeetings.dto.req.RequestToJoinMeetingStatusReqDto;
 import com.foretell.sportsmeetings.dto.res.RequestToJoinMeetingResDto;
+import com.foretell.sportsmeetings.dto.res.page.extnds.PageRequestToJoinMeetingResDto;
 import com.foretell.sportsmeetings.service.RequestToJoinMeetingService;
 import com.foretell.sportsmeetings.util.jwt.JwtProvider;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,7 +23,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.List;
 
 @RestController
 @RequestMapping("requests-to-join-meeting")
@@ -44,13 +49,20 @@ public class RequestToJoinMeetingController {
         }
     }
 
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page", paramType = "query",
+                    value = "Results page you want to retrieve (0..N)"),
+    })
     @GetMapping
-    public List<RequestToJoinMeetingResDto> getRequestsByMeetingId(@RequestParam Long meetingId,
-                                                                   HttpServletRequest httpServletRequest) {
+    public PageRequestToJoinMeetingResDto getRequestsByMeetingId(
+            @RequestParam Long meetingId,
+            HttpServletRequest httpServletRequest,
+            @PageableDefault(size = 3, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable) {
+
         String usernameFromToken =
                 jwtProvider.getUsernameFromToken(jwtProvider.getTokenFromRequest(httpServletRequest));
 
-        return requestToJoinMeetingService.getByMeetingId(meetingId, usernameFromToken);
+        return requestToJoinMeetingService.getByMeetingId(meetingId, usernameFromToken, pageable);
     }
 
     @PutMapping("{id}")

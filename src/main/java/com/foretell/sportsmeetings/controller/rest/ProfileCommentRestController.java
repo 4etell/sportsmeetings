@@ -43,7 +43,7 @@ public class ProfileCommentRestController {
     }
 
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "page", dataType = "integer", paramType = "query",
+            @ApiImplicitParam(name = "page", paramType = "query",
                     value = "Results page you want to retrieve (0..N)"),
     })
     @RequestMapping(value = "/comments", method = RequestMethod.GET)
@@ -54,7 +54,7 @@ public class ProfileCommentRestController {
     }
 
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "page", dataType = "integer", paramType = "query",
+            @ApiImplicitParam(name = "page", paramType = "query",
                     value = "Results page you want to retrieve (0..N)"),
     })
     @GetMapping("my-profile-comments")

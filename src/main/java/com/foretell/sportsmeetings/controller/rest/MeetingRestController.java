@@ -1,6 +1,7 @@
 package com.foretell.sportsmeetings.controller.rest;
 
 import com.foretell.sportsmeetings.dto.req.MeetingReqDto;
+import com.foretell.sportsmeetings.dto.req.UpdateParticipantReqDto;
 import com.foretell.sportsmeetings.dto.res.MeetingResDto;
 import com.foretell.sportsmeetings.dto.res.page.extnds.PageMeetingResDto;
 import com.foretell.sportsmeetings.service.MeetingService;
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import javax.websocket.server.PathParam;
+import java.util.List;
 
 @RestController
 public class MeetingRestController {
@@ -40,6 +41,18 @@ public class MeetingRestController {
         return meetingService.createMeeting(meetingReqDto, usernameFromToken);
     }
 
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page", paramType = "query",
+                    value = "Results page you want to retrieve (0..N)"),
+    })
+    @RequestMapping(value = "/meetings", method = RequestMethod.GET)
+    public PageMeetingResDto getMeetings(
+            @RequestParam(required = false) List<Long> categoryIds,
+            @RequestParam Integer distance,
+            @PageableDefault(size = 3, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable) {
+
+        return meetingService.getAllByCategoryAndDistance(pageable, categoryIds, distance);
+    }
 
     @RequestMapping(value = "/meetings/{id}", method = RequestMethod.GET)
     public MeetingResDto getById(@PathVariable Long id) {
@@ -47,17 +60,18 @@ public class MeetingRestController {
     }
 
     @RequestMapping(value = "/meetings/{id}", method = RequestMethod.PUT)
-    public MeetingResDto addParticipantInMeeting(@PathVariable Long id,
-                                                 @RequestParam Long participantId,
-                                                 HttpServletRequest httpServletRequest) {
+    public MeetingResDto updateParticipantInMeeting(@PathVariable Long id,
+                                                    @RequestBody @Valid UpdateParticipantReqDto updateParticipantReqDto,
+                                                    HttpServletRequest httpServletRequest) {
         String usernameFromToken =
                 jwtProvider.getUsernameFromToken(jwtProvider.getTokenFromRequest(httpServletRequest));
-        return meetingService.addParticipantInMeeting(id, participantId, usernameFromToken);
+
+        return meetingService.updateParticipantsInMeeting(id, updateParticipantReqDto, usernameFromToken);
     }
 
 
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "page", dataType = "integer", paramType = "query",
+            @ApiImplicitParam(name = "page", paramType = "query",
                     value = "Results page you want to retrieve (0..N)"),
     })
     @RequestMapping(value = "my-created-meetings", method = RequestMethod.GET)
@@ -72,7 +86,7 @@ public class MeetingRestController {
     }
 
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "page", dataType = "integer", paramType = "query",
+            @ApiImplicitParam(name = "page", paramType = "query",
                     value = "Results page you want to retrieve (0..N)"),
     })
     @RequestMapping(value = "my-attended-meetings", method = RequestMethod.GET)

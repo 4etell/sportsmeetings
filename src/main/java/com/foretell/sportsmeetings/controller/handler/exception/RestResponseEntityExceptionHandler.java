@@ -1,6 +1,6 @@
 package com.foretell.sportsmeetings.controller.handler.exception;
 
-import com.foretell.sportsmeetings.exception.AddingParticipantException;
+import com.foretell.sportsmeetings.exception.UpdateParticipantsException;
 import com.foretell.sportsmeetings.exception.InvalidDateTimeReqDtoException;
 import com.foretell.sportsmeetings.exception.InvalidProfilePhotoException;
 import com.foretell.sportsmeetings.exception.MaxNumbOfMeetingParticipantsException;
@@ -107,7 +107,7 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     }
 
     @ExceptionHandler(value = {
-            AddingParticipantException.class
+            UpdateParticipantsException.class
     })
     public ResponseEntity<?> handleAddingParticipantException(Exception ex, WebRequest request) {
         return ResponseEntity.status(500).body(ex.getMessage());

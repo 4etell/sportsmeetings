@@ -1,10 +1,13 @@
 package com.foretell.sportsmeetings.service.impl;
 
 import com.foretell.sportsmeetings.dto.res.MeetingCategoryResDto;
+import com.foretell.sportsmeetings.dto.res.page.extnds.PageMeetingCategoryResDto;
 import com.foretell.sportsmeetings.exception.notfound.MeetingCategoryNotFoundException;
 import com.foretell.sportsmeetings.model.MeetingCategory;
 import com.foretell.sportsmeetings.repo.MeetingCategoryRepo;
 import com.foretell.sportsmeetings.service.MeetingCategoryService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,9 +23,9 @@ public class MeetingCategoryServiceImpl implements MeetingCategoryService {
     }
 
     @Override
-    public List<MeetingCategoryResDto> getAll() {
-        return meetingCategoryRepo.findAll().stream()
-                .map(this::convertMeetingCategoryToMeetingCategoryResDto).collect(Collectors.toList());
+    public PageMeetingCategoryResDto getAll(Pageable pageable) {
+        Page<MeetingCategory> page = meetingCategoryRepo.findAll(pageable);
+        return convertMeetingCategoryPageToPageMeetingCategoryResDto(page, pageable);
     }
 
     @Override
@@ -43,8 +46,23 @@ public class MeetingCategoryServiceImpl implements MeetingCategoryService {
 
     private MeetingCategoryResDto convertMeetingCategoryToMeetingCategoryResDto(MeetingCategory meetingCategory) {
         return new MeetingCategoryResDto(
-                meetingCategory.getId(),
+               meetingCategory.getId(),
                 meetingCategory.getName()
+        );
+    }
+
+    private PageMeetingCategoryResDto convertMeetingCategoryPageToPageMeetingCategoryResDto(Page<MeetingCategory> page,
+                                                                                            Pageable pageable) {
+
+        List<MeetingCategoryResDto> meetingCategoryResDtoList =
+                page.getContent().stream()
+                        .map(this::convertMeetingCategoryToMeetingCategoryResDto)
+                        .collect(Collectors.toList());
+
+        return new PageMeetingCategoryResDto(
+                pageable.getPageNumber(),
+                page.getTotalPages(),
+                meetingCategoryResDtoList
         );
     }
 }

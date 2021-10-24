@@ -2,12 +2,14 @@ package com.foretell.sportsmeetings.service.impl;
 
 import com.foretell.sportsmeetings.dto.req.DateTimeReqDto;
 import com.foretell.sportsmeetings.dto.req.MeetingReqDto;
+import com.foretell.sportsmeetings.dto.req.UpdateParticipantReqDto;
+import com.foretell.sportsmeetings.dto.req.UpdateParticipantStatusReqDto;
 import com.foretell.sportsmeetings.dto.res.MeetingResDto;
 import com.foretell.sportsmeetings.dto.res.page.extnds.PageMeetingResDto;
-import com.foretell.sportsmeetings.exception.AddingParticipantException;
 import com.foretell.sportsmeetings.exception.InvalidDateTimeReqDtoException;
-import com.foretell.sportsmeetings.exception.notfound.MeetingNotFoundException;
+import com.foretell.sportsmeetings.exception.UpdateParticipantsException;
 import com.foretell.sportsmeetings.exception.UserHaveNotPermissionException;
+import com.foretell.sportsmeetings.exception.notfound.MeetingNotFoundException;
 import com.foretell.sportsmeetings.model.Meeting;
 import com.foretell.sportsmeetings.model.MeetingCategory;
 import com.foretell.sportsmeetings.model.User;
@@ -86,21 +88,44 @@ public class MeetingServiceImpl implements MeetingService {
     }
 
     @Override
-    public MeetingResDto addParticipantInMeeting(Long meetingId, Long participantId, String username) {
+    public PageMeetingResDto getAllByCategoryAndDistance(Pageable pageable, List<Long> categoryIds, Integer distance) {
+        Page<Meeting> page;
+        if (categoryIds == null) {
+            page = meetingRepo.findAllByDistance(pageable, distance);
+        } else {
+            page = meetingRepo.findAllByDistanceAndCategoryIds(pageable, categoryIds);
+        }
+        return convertMeetingPageToPageMeetingResDto(page, pageable);
+    }
+
+    @Override
+    public MeetingResDto updateParticipantsInMeeting(Long meetingId, UpdateParticipantReqDto updateParticipantReqDto, String username) {
         Meeting meeting = findById(meetingId);
         User user = userService.findByUsername(username);
+        Long participantId = updateParticipantReqDto.getParticipantId();
+        UpdateParticipantStatusReqDto statusToUpdate = updateParticipantReqDto.getUpdateParticipantStatusReqDto();
         User participant = userService.findById(participantId);
-        if (meeting.getCreator().getId().equals(user.getId())) {
-            if (meeting.addParticipant(participant)) {
-                Meeting updatedMeeting = meetingRepo.save(meeting);
-                return convertMeetingToMeetingResDto(updatedMeeting);
-            } else {
-                throw new AddingParticipantException("Server cannot add this participantId: " + participantId);
-            }
+        boolean isUpdated = false;
+        boolean isRemove = statusToUpdate == UpdateParticipantStatusReqDto.REMOVE;
+        boolean isAdd = statusToUpdate == UpdateParticipantStatusReqDto.ADD;
+        boolean isCreator = meeting.getCreator().getId().equals(user.getId());
+        if (isCreator && isAdd) {
+            isUpdated = meeting.addParticipant(participant);
+        } else if (isRemove && (isCreator || (meeting.isParticipant(user) && user.getId().equals(participantId)))) {
+            isUpdated = meeting.removeParticipant(participant);
         } else {
-            throw new UserHaveNotPermissionException("Only creator can add participants");
+            throw new UserHaveNotPermissionException("You have not permission");
         }
+        if (isUpdated) {
+            Meeting updatedMeeting = meetingRepo.save(meeting);
+            return convertMeetingToMeetingResDto(updatedMeeting);
+        } else {
+
+            throw new UpdateParticipantsException("Server cannot add/remove this participantId: " + participantId);
+        }
+
     }
+
 
     private GregorianCalendar createGregorianCalendarToMeeting(DateTimeReqDto dateTimeReqDto) {
         final long maxTimeToCreateInMs = 1_209_600_000;
