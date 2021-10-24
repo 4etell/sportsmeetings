@@ -6,14 +6,11 @@ import com.foretell.sportsmeetings.service.MeetingCategoryService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("meeting-categories")
@@ -26,7 +23,8 @@ public class MeetingCategoryRestController {
     }
 
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "page", dataType = "integer", paramType = "query",
+            @ApiImplicitParam(name = "page", paramType = "query",
+                    dataTypeClass = Long.class,
                     value = "Results page you want to retrieve (0..N)"),
     })
     @GetMapping
