@@ -43,7 +43,6 @@ public class MeetingRestController {
 
     @ApiImplicitParams({
             @ApiImplicitParam(name = "page", paramType = "query",
-                    dataTypeClass = Long.class,
                     value = "Results page you want to retrieve (0..N)"),
     })
     @RequestMapping(value = "/meetings", method = RequestMethod.GET)
@@ -62,8 +61,8 @@ public class MeetingRestController {
 
     @RequestMapping(value = "/meetings/{id}", method = RequestMethod.PUT)
     public MeetingResDto updateParticipantInMeeting(@PathVariable Long id,
-                                                 @RequestBody @Valid UpdateParticipantReqDto updateParticipantReqDto,
-                                                 HttpServletRequest httpServletRequest) {
+                                                    @RequestBody @Valid UpdateParticipantReqDto updateParticipantReqDto,
+                                                    HttpServletRequest httpServletRequest) {
         String usernameFromToken =
                 jwtProvider.getUsernameFromToken(jwtProvider.getTokenFromRequest(httpServletRequest));
 
@@ -73,7 +72,6 @@ public class MeetingRestController {
 
     @ApiImplicitParams({
             @ApiImplicitParam(name = "page", paramType = "query",
-                    dataTypeClass = Long.class,
                     value = "Results page you want to retrieve (0..N)"),
     })
     @RequestMapping(value = "my-created-meetings", method = RequestMethod.GET)
@@ -89,7 +87,6 @@ public class MeetingRestController {
 
     @ApiImplicitParams({
             @ApiImplicitParam(name = "page", paramType = "query",
-                    dataTypeClass = Long.class,
                     value = "Results page you want to retrieve (0..N)"),
     })
     @RequestMapping(value = "my-attended-meetings", method = RequestMethod.GET)

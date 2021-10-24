@@ -24,7 +24,6 @@ public class MeetingCategoryRestController {
 
     @ApiImplicitParams({
             @ApiImplicitParam(name = "page", paramType = "query",
-                    dataTypeClass = Long.class,
                     value = "Results page you want to retrieve (0..N)"),
     })
     @GetMapping
