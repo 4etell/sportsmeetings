@@ -1,6 +1,7 @@
 package com.foretell.sportsmeetings.controller.rest;
 
 import com.foretell.sportsmeetings.dto.req.MeetingReqDto;
+import com.foretell.sportsmeetings.dto.req.UpdateParticipantReqDto;
 import com.foretell.sportsmeetings.dto.res.MeetingResDto;
 import com.foretell.sportsmeetings.dto.res.page.extnds.PageMeetingResDto;
 import com.foretell.sportsmeetings.service.MeetingService;
@@ -59,13 +60,13 @@ public class MeetingRestController {
     }
 
     @RequestMapping(value = "/meetings/{id}", method = RequestMethod.PUT)
-    public MeetingResDto addParticipantInMeeting(@PathVariable Long id,
-                                                 @RequestParam Long participantId,
+    public MeetingResDto updateParticipantInMeeting(@PathVariable Long id,
+                                                 @RequestBody @Valid UpdateParticipantReqDto updateParticipantReqDto,
                                                  HttpServletRequest httpServletRequest) {
         String usernameFromToken =
                 jwtProvider.getUsernameFromToken(jwtProvider.getTokenFromRequest(httpServletRequest));
 
-        return meetingService.addParticipantInMeeting(id, participantId, usernameFromToken);
+        return meetingService.updateParticipantsInMeeting(id, updateParticipantReqDto, usernameFromToken);
     }
 
 

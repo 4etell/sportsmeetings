@@ -59,11 +59,17 @@ public class Meeting extends AbstractEntity {
             inverseJoinColumns = {@JoinColumn(name = "participant_id", referencedColumnName = "id")})
     private Set<User> participants = new HashSet<User>();
 
-    public boolean addParticipant(User user) {
+    public synchronized boolean addParticipant(User user) {
         if (maxNumbOfParticipants != participants.size()) {
             return participants.add(user);
         } else {
             throw new MaxNumbOfMeetingParticipantsException("All places of participants are taken");
         }
     }
+
+    public synchronized boolean removeParticipant(User user) {
+        return participants.remove(user);
+    }
+
+    public synchronized boolean isParticipant(User user) {return participants.contains(user);}
 }

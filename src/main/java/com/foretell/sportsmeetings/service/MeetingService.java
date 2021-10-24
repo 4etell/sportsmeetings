@@ -1,6 +1,7 @@
 package com.foretell.sportsmeetings.service;
 
 import com.foretell.sportsmeetings.dto.req.MeetingReqDto;
+import com.foretell.sportsmeetings.dto.req.UpdateParticipantReqDto;
 import com.foretell.sportsmeetings.dto.res.MeetingResDto;
 import com.foretell.sportsmeetings.dto.res.page.extnds.PageMeetingResDto;
 import com.foretell.sportsmeetings.model.Meeting;
@@ -21,5 +22,5 @@ public interface MeetingService {
 
     PageMeetingResDto getAllByCategoryAndDistance(Pageable pageable, List<Long> categoryId, Integer distance);
 
-    MeetingResDto addParticipantInMeeting(Long meetingId, Long participantId, String username);
+    MeetingResDto updateParticipantsInMeeting(Long meetingId, UpdateParticipantReqDto updateParticipantReqDto, String username);
 }

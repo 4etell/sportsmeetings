@@ -1,11 +1,8 @@
 package com.foretell.sportsmeetings.service.impl;
 
 import com.foretell.sportsmeetings.dto.res.MeetingCategoryResDto;
-import com.foretell.sportsmeetings.dto.res.MeetingResDto;
 import com.foretell.sportsmeetings.dto.res.page.extnds.PageMeetingCategoryResDto;
-import com.foretell.sportsmeetings.dto.res.page.extnds.PageMeetingResDto;
 import com.foretell.sportsmeetings.exception.notfound.MeetingCategoryNotFoundException;
-import com.foretell.sportsmeetings.model.Meeting;
 import com.foretell.sportsmeetings.model.MeetingCategory;
 import com.foretell.sportsmeetings.repo.MeetingCategoryRepo;
 import com.foretell.sportsmeetings.service.MeetingCategoryService;
@@ -49,7 +46,7 @@ public class MeetingCategoryServiceImpl implements MeetingCategoryService {
 
     private MeetingCategoryResDto convertMeetingCategoryToMeetingCategoryResDto(MeetingCategory meetingCategory) {
         return new MeetingCategoryResDto(
-                meetingCategory.getId(),
+               meetingCategory.getId(),
                 meetingCategory.getName()
         );
     }
