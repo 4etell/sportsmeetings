@@ -17,6 +17,10 @@ import com.foretell.sportsmeetings.repo.MeetingRepo;
 import com.foretell.sportsmeetings.service.MeetingCategoryService;
 import com.foretell.sportsmeetings.service.MeetingService;
 import com.foretell.sportsmeetings.service.UserService;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.PrecisionModel;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -48,12 +52,14 @@ public class MeetingServiceImpl implements MeetingService {
         MeetingCategory meetingCategory = meetingCategoryService.findById(meetingReqDto.getCategoryId());
         GregorianCalendar gregorianCalendarToMeeting = createGregorianCalendarToMeeting(meetingReqDto.getDateTimeReqDto());
         Set<User> participants = new HashSet<>();
+        GeometryFactory geoFactory = new GeometryFactory(new PrecisionModel(), 4326);
+        Point point = geoFactory.createPoint(
+                new Coordinate(meetingReqDto.getFirstCoordinate(), meetingReqDto.getSecondCoordinate()));
         participants.add(user);
         Meeting meeting = new Meeting(
                 meetingCategory,
                 meetingReqDto.getDescription(),
-                meetingReqDto.getFirstCoordinate(),
-                meetingReqDto.getSecondCoordinate(),
+                point,
                 gregorianCalendarToMeeting,
                 meetingReqDto.getMaxNumbOfParticipants(),
                 user,
@@ -88,10 +94,13 @@ public class MeetingServiceImpl implements MeetingService {
     }
 
     @Override
-    public PageMeetingResDto getAllByCategoryAndDistance(Pageable pageable, List<Long> categoryIds, Integer distance) {
+    public PageMeetingResDto getAllByCategoryAndDistance(Pageable pageable, List<Long> categoryIds, int distance) {
         Page<Meeting> page;
         if (categoryIds == null) {
-            page = meetingRepo.findAllByDistance(pageable, distance);
+            GeometryFactory geoFactory = new GeometryFactory(new PrecisionModel(), 4326);
+            Point point = geoFactory.createPoint(
+                    new Coordinate(59.93655753692835, 30.50009860961166));
+            page = meetingRepo.findAllByDistance(pageable, point, distance);
         } else {
             page = meetingRepo.findAllByDistanceAndCategoryIds(pageable, categoryIds);
         }
@@ -176,8 +185,8 @@ public class MeetingServiceImpl implements MeetingService {
                 meeting.getId(),
                 meeting.getCategory().getId(),
                 meeting.getDescription(),
-                meeting.getFirstCoordinate(),
-                meeting.getSecondCoordinate(),
+                meeting.getGeom().getCoordinate().x,
+                meeting.getGeom().getCoordinate().y,
                 convertDateOfMeetingToString(meeting.getDate()),
                 meeting.getMaxNumbOfParticipants(),
                 meeting.getCreator().getId(),

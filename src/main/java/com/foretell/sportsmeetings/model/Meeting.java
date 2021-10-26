@@ -1,6 +1,7 @@
 package com.foretell.sportsmeetings.model;
 
 import com.foretell.sportsmeetings.exception.MaxNumbOfMeetingParticipantsException;
+import com.vividsolutions.jts.geom.Point;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -36,11 +37,8 @@ public class Meeting extends AbstractEntity {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "first_coordinate")
-    private float firstCoordinate;
-
-    @Column(name = "second_coordinate")
-    private float secondCoordinate;
+    @Column(columnDefinition = "geography")
+    private Point geom;
 
     @NotNull
     @Column(name = "date")

@@ -20,7 +20,7 @@ public interface MeetingService {
 
     PageMeetingResDto getAllWhereParticipantNotCreatorByParticipantUsername(Pageable pageable, String username);
 
-    PageMeetingResDto getAllByCategoryAndDistance(Pageable pageable, List<Long> categoryId, Integer distance);
+    PageMeetingResDto getAllByCategoryAndDistance(Pageable pageable, List<Long> categoryId, int distance);
 
     MeetingResDto updateParticipantsInMeeting(Long meetingId, UpdateParticipantReqDto updateParticipantReqDto, String username);
 }
