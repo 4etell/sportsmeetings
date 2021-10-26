@@ -2,6 +2,7 @@ package com.foretell.sportsmeetings.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.domain.Pageable;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.ApiKey;
@@ -26,6 +27,7 @@ public class SpringFoxConfig {
                 .apiInfo(apiInfo())
                 .useDefaultResponseMessages(false)
                 .securityContexts(Collections.singletonList(securityContext()))
+                .ignoredParameterTypes(Pageable.class)
                 .securitySchemes(Collections.singletonList(apiKey()))
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.foretell.sportsmeetings.controller"))
@@ -42,7 +44,7 @@ public class SpringFoxConfig {
                         "For example: 'eyJhbGciOiJIUzUxMiJ9'.",
                 "1.0",
                 null,
-                new Contact("Daniil Karanov", "https://github.com/4etell", "daniilkaranov@yandex.ru"),
+                new Contact("Daniil Karanov", "https://daniilkaranov.ru/", "daniilkaranov@yandex.ru"),
                 null,
                 null,
                 Collections.emptyList());

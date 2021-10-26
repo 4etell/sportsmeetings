@@ -1,12 +1,10 @@
-package com.foretell.sportsmeetings.controller;
+package com.foretell.sportsmeetings.controller.rest;
 
 import com.foretell.sportsmeetings.dto.req.AuthenticationReqDto;
 import com.foretell.sportsmeetings.dto.req.RegistrationReqDto;
 import com.foretell.sportsmeetings.dto.res.AuthenticationResDto;
 import com.foretell.sportsmeetings.service.UserService;
 import com.foretell.sportsmeetings.util.jwt.JwtProvider;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @RestController
 @RequestMapping(value = "/auth")
@@ -53,8 +50,7 @@ public class AuthenticationRestController {
                 authenticationReqDto.getPassword()));
 
         String token = jwtProvider.generateToken(username);
-        List<String> userRolesByUsername = userService.findUserRolesByUsername(username);
-        AuthenticationResDto authenticationResDto = new AuthenticationResDto(username, token, userRolesByUsername);
+        AuthenticationResDto authenticationResDto = new AuthenticationResDto(token);
 
         return ResponseEntity.ok(authenticationResDto);
     }
@@ -72,9 +68,7 @@ public class AuthenticationRestController {
 
         String registeredUsername = userService.register(registrationReqDto).getUsername();
         String token = jwtProvider.generateToken(registeredUsername);
-        List<String> userRolesByUsername = userService.findUserRolesByUsername(registeredUsername);
-        AuthenticationResDto authenticationResDto =
-                new AuthenticationResDto(registeredUsername, token, userRolesByUsername);
+        AuthenticationResDto authenticationResDto = new AuthenticationResDto(token);
 
         return ResponseEntity.ok(authenticationResDto);
     }

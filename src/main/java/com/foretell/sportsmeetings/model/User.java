@@ -12,7 +12,9 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -48,4 +50,11 @@ public class User extends AbstractEntity {
             joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "role_id", referencedColumnName = "id")})
     private List<Role> roles;
+
+    @OneToMany(mappedBy = "recipient")
+    private List<ProfileComment> profileComments = new ArrayList<ProfileComment>();
+
+
+    @ManyToMany(mappedBy = "participants", fetch = FetchType.LAZY)
+    private List<Meeting> meetings = new ArrayList<Meeting>();
 }

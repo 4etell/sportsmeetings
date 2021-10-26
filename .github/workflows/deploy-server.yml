@@ -36,4 +36,5 @@ jobs:
           ssh ubuntu@${{SECRETS.SERVER_IP}} 'bash -l -c "
           echo 'connected';
           cd '${{SECRETS.DEPLOY_PATH}}';
+          git pull
           pm2 restart sportsmeetings-server"'

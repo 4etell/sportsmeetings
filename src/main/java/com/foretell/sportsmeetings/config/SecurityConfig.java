@@ -11,12 +11,10 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter implements WebMvcConfigurer {
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private static final String LOGIN_ENDPOINT = "/auth/login";
     private static final String REGISTRATION_ENDPOINT = "/auth/register";
     private static final String HELLO_ENDPOINT = "/hello";
@@ -52,9 +50,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements WebM
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
                 .antMatchers(SWAGGER_WHITELIST).permitAll()
+                .antMatchers("/profile-photos/**").permitAll()
                 .antMatchers(LOGIN_ENDPOINT, REGISTRATION_ENDPOINT, HELLO_ENDPOINT).permitAll()
                 .antMatchers(ADMIN_ENDPOINT).hasRole("ADMIN")
-                .anyRequest().authenticated();
+                .anyRequest().hasRole("USER");
     }
 
     @Bean
@@ -68,12 +67,4 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements WebM
         return super.authenticationManagerBean();
     }
 
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedOriginPatterns("*")
-                .allowedMethods("*")
-                .allowedHeaders("*")
-                .allowCredentials(true);
-    }
 }
