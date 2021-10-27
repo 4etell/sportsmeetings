@@ -21,9 +21,10 @@ public interface MeetingRepo extends JpaRepository<Meeting, Long> {
     Page<Meeting> findAllWhereParticipantNotCreatorByParticipantId(Pageable pageable, Long id);
 
     @Query(value = "SELECT * FROM meetings " +
-            "WHERE ST_DistanceSphere(CAST(geom as geometry), CAST(:point as geometry)) < :distanceM", nativeQuery = true)
+            "WHERE ST_DistanceSphere(CAST(geom AS geometry), CAST(:point AS geometry)) < :distanceM", nativeQuery = true)
     Page<Meeting> findAllByDistance(Pageable pageable, Point point, double distanceM);
 
-    @Query(value = "SELECT m.* FROM meetings AS m WHERE m.category_id IN ?1 ", nativeQuery = true)
-    Page<Meeting> findAllByDistanceAndCategoryIds(Pageable pageable, List<Long> categoryIds);
+    @Query(value = "SELECT m.* FROM meetings AS m WHERE m.category_id IN :categoryIds " +
+            "AND ST_DistanceSphere(CAST(geom AS geometry), CAST(:point AS geometry)) < :distanceM", nativeQuery = true)
+    Page<Meeting> findAllByDistanceAndCategoryIds(Pageable pageable, List<Long> categoryIds, Point point, double distanceM);
 }

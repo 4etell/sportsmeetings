@@ -36,6 +36,8 @@ import java.util.stream.Collectors;
 @Service
 public class MeetingServiceImpl implements MeetingService {
 
+    private final GeometryFactory geoFactory = new GeometryFactory(new PrecisionModel(), 4326);
+
     private final UserService userService;
     private final MeetingRepo meetingRepo;
     private final MeetingCategoryService meetingCategoryService;
@@ -52,7 +54,6 @@ public class MeetingServiceImpl implements MeetingService {
         MeetingCategory meetingCategory = meetingCategoryService.findById(meetingReqDto.getCategoryId());
         GregorianCalendar gregorianCalendarToMeeting = createGregorianCalendarToMeeting(meetingReqDto.getDateTimeReqDto());
         Set<User> participants = new HashSet<>();
-        GeometryFactory geoFactory = new GeometryFactory(new PrecisionModel(), 4326);
         Point point = geoFactory.createPoint(
                 new Coordinate(meetingReqDto.getFirstCoordinate(), meetingReqDto.getSecondCoordinate()));
         participants.add(user);
@@ -94,15 +95,14 @@ public class MeetingServiceImpl implements MeetingService {
     }
 
     @Override
-    public PageMeetingResDto getAllByCategoryAndDistance(Pageable pageable, List<Long> categoryIds, int distance) {
+    public PageMeetingResDto getAllByCategoryAndDistance(Pageable pageable, List<Long> categoryIds, double userFirstCord, double userSecondCord, int distance) {
         Page<Meeting> page;
+        Point point = geoFactory.createPoint(
+                new Coordinate(userFirstCord, userSecondCord));
         if (categoryIds == null) {
-            GeometryFactory geoFactory = new GeometryFactory(new PrecisionModel(), 4326);
-            Point point = geoFactory.createPoint(
-                    new Coordinate(59.93655753692835, 30.50009860961166));
             page = meetingRepo.findAllByDistance(pageable, point, distance);
         } else {
-            page = meetingRepo.findAllByDistanceAndCategoryIds(pageable, categoryIds);
+            page = meetingRepo.findAllByDistanceAndCategoryIds(pageable, categoryIds, point, distance);
         }
         return convertMeetingPageToPageMeetingResDto(page, pageable);
     }
