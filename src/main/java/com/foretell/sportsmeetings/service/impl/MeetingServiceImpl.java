@@ -56,7 +56,7 @@ public class MeetingServiceImpl implements MeetingService {
         User user = userService.findByUsername(username);
         MeetingCategory meetingCategory = meetingCategoryService.findById(meetingReqDto.getCategoryId());
         GregorianCalendar startDate = createStartDateOfMeeting(meetingReqDto.getStartDate());
-        GregorianCalendar endDate = createEndDateOfMeeting(meetingReqDto.getEndDate());
+        GregorianCalendar endDate = createEndDateOfMeeting(startDate, meetingReqDto.getEndDate());
         Set<User> participants = new HashSet<>();
         Point point = geoFactory.createPoint(
                 new Coordinate(meetingReqDto.getFirstCoordinate(), meetingReqDto.getSecondCoordinate()));
@@ -156,8 +156,13 @@ public class MeetingServiceImpl implements MeetingService {
         }
     }
 
-    private GregorianCalendar createEndDateOfMeeting(DateTimeReqDto dateTimeReqDto) {
-        return CalendarUtil.createGregorianCalendarByDateTimeReqDto(dateTimeReqDto);
+    private GregorianCalendar createEndDateOfMeeting(GregorianCalendar startDate, DateTimeReqDto endDateReqDto) {
+        GregorianCalendar endDate = CalendarUtil.createGregorianCalendarByDateTimeReqDto(endDateReqDto);
+        if (endDate.getTimeInMillis() > startDate.getTimeInMillis()) {
+            return endDate;
+        } else {
+            throw new InvalidDateTimeReqDtoException("Invalid endDate");
+        }
     }
 
 
