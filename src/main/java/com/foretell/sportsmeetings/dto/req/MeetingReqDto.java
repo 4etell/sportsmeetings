@@ -24,7 +24,11 @@ public class MeetingReqDto {
 
     @Valid
     @NotNull(message = "DateTimeReqDto cannot be null")
-    private DateTimeReqDto dateTimeReqDto;
+    private DateTimeReqDto startDate;
+
+    @Valid
+    @NotNull(message = "DateTimeReqDto cannot be null")
+    private DateTimeReqDto endDate;
 
     @Min(value = 2, message = "Min value of maxNumbOfParticipants is 2")
     @Max(value = 50, message = "Max value of maxNumbOfParticipants is 50")

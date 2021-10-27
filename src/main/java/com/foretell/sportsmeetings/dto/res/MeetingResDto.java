@@ -20,7 +20,10 @@ public class MeetingResDto {
     private final double secondCoordinate;
 
     @ApiModelProperty(example = "23.09 / 00:59")
-    private final String date;
+    private final String startDate;
+
+    @ApiModelProperty(example = "24.09 / 00:59")
+    private final String endDate;
 
     private final int maxNumbOfParticipants;
 

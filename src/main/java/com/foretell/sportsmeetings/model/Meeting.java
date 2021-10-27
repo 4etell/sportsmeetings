@@ -9,12 +9,15 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
@@ -33,6 +36,10 @@ public class Meeting extends AbstractEntity {
     @NotNull
     private MeetingCategory category;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private MeetingStatus status;
+
     @NotNull
     @Column(name = "description")
     private String description;
@@ -40,9 +47,14 @@ public class Meeting extends AbstractEntity {
     @Column(columnDefinition = "geography")
     private Point geom;
 
+
     @NotNull
-    @Column(name = "date")
-    private GregorianCalendar date;
+    @Column(name = "start_date")
+    private GregorianCalendar startDate;
+
+    @NotNull
+    @Column(name = "end_date")
+    private GregorianCalendar endDate;
 
     @Column(name = "max_num_of_participants")
     private int maxNumbOfParticipants = 2;
