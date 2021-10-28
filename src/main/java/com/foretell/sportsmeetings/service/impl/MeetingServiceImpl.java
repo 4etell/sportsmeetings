@@ -12,60 +12,85 @@ import com.foretell.sportsmeetings.exception.UserHaveNotPermissionException;
 import com.foretell.sportsmeetings.exception.notfound.MeetingNotFoundException;
 import com.foretell.sportsmeetings.model.Meeting;
 import com.foretell.sportsmeetings.model.MeetingCategory;
+import com.foretell.sportsmeetings.model.MeetingStatus;
 import com.foretell.sportsmeetings.model.User;
 import com.foretell.sportsmeetings.repo.MeetingRepo;
 import com.foretell.sportsmeetings.service.MeetingCategoryService;
 import com.foretell.sportsmeetings.service.MeetingService;
 import com.foretell.sportsmeetings.service.UserService;
+import com.foretell.sportsmeetings.util.calendar.CalendarUtil;
+import com.foretell.sportsmeetings.util.timer.CustomTimer;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.PrecisionModel;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TimerTask;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class MeetingServiceImpl implements MeetingService {
+
+    private final GeometryFactory geoFactory = new GeometryFactory(new PrecisionModel(), 4326);
 
     private final UserService userService;
     private final MeetingRepo meetingRepo;
     private final MeetingCategoryService meetingCategoryService;
+    private final CustomTimer customTimer;
 
-    public MeetingServiceImpl(UserService userService, MeetingRepo meetingRepo, MeetingCategoryService meetingCategoryService) {
+    public MeetingServiceImpl(UserService userService, MeetingRepo meetingRepo, MeetingCategoryService meetingCategoryService, CustomTimer customTimer, CustomTimer customTimer1) {
         this.userService = userService;
         this.meetingRepo = meetingRepo;
         this.meetingCategoryService = meetingCategoryService;
+        this.customTimer = customTimer1;
     }
 
     @Override
     public MeetingResDto createMeeting(MeetingReqDto meetingReqDto, String username) {
         User user = userService.findByUsername(username);
         MeetingCategory meetingCategory = meetingCategoryService.findById(meetingReqDto.getCategoryId());
-        GregorianCalendar gregorianCalendarToMeeting = createGregorianCalendarToMeeting(meetingReqDto.getDateTimeReqDto());
+        GregorianCalendar startDate = createStartDateOfMeeting(meetingReqDto.getStartDate());
+        GregorianCalendar endDate = createEndDateOfMeeting(startDate, meetingReqDto.getEndDate());
         Set<User> participants = new HashSet<>();
-        GeometryFactory geoFactory = new GeometryFactory(new PrecisionModel(), 4326);
         Point point = geoFactory.createPoint(
                 new Coordinate(meetingReqDto.getFirstCoordinate(), meetingReqDto.getSecondCoordinate()));
         participants.add(user);
         Meeting meeting = new Meeting(
                 meetingCategory,
+                MeetingStatus.CREATED,
                 meetingReqDto.getDescription(),
-                point,
-                gregorianCalendarToMeeting,
+                point, startDate,
+                endDate,
                 meetingReqDto.getMaxNumbOfParticipants(),
                 user,
                 participants
         );
-        return convertMeetingToMeetingResDto(meetingRepo.save(meeting));
+        Meeting savedMeeting = meetingRepo.save(meeting);
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                Long meetingId = savedMeeting.getId();
+                if (updateStatus(meetingId, MeetingStatus.FINISHED)) {
+                    log.info("Status of meeting with id: " + (meetingId) + " set to FINISHED");
+                } else {
+                    log.error("Cannot update status of meeting with id: " + (meetingId));
+                }
+            }
+        };
+        customTimer.schedule(timerTask, savedMeeting.getEndDate().getTime());
+        return convertMeetingToMeetingResDto(savedMeeting);
     }
 
     @Override
@@ -94,15 +119,14 @@ public class MeetingServiceImpl implements MeetingService {
     }
 
     @Override
-    public PageMeetingResDto getAllByCategoryAndDistance(Pageable pageable, List<Long> categoryIds, int distance) {
+    public PageMeetingResDto getAllByCategoryAndDistance(Pageable pageable, List<Long> categoryIds, double userFirstCord, double userSecondCord, int distance) {
         Page<Meeting> page;
+        Point point = geoFactory.createPoint(
+                new Coordinate(userFirstCord, userSecondCord));
         if (categoryIds == null) {
-            GeometryFactory geoFactory = new GeometryFactory(new PrecisionModel(), 4326);
-            Point point = geoFactory.createPoint(
-                    new Coordinate(59.93655753692835, 30.50009860961166));
-            page = meetingRepo.findAllByDistance(pageable, point, distance);
+            page = meetingRepo.findAllByDistance(pageable, point, distance, MeetingStatus.CREATED.toString());
         } else {
-            page = meetingRepo.findAllByDistanceAndCategoryIds(pageable, categoryIds);
+            page = meetingRepo.findAllByDistanceAndCategoryIds(pageable, categoryIds, point, distance, MeetingStatus.CREATED.toString());
         }
         return convertMeetingPageToPageMeetingResDto(page, pageable);
     }
@@ -135,31 +159,40 @@ public class MeetingServiceImpl implements MeetingService {
 
     }
 
+    @Override
+    public boolean updateStatus(Long meetingId, MeetingStatus meetingStatus) {
+        Meeting meeting = findById(meetingId);
+        meeting.setStatus(meetingStatus);
+        meetingRepo.save(meeting);
+        return true;
+    }
 
-    private GregorianCalendar createGregorianCalendarToMeeting(DateTimeReqDto dateTimeReqDto) {
+    @Override
+    public List<Meeting> findAllExpiredMeetings() {
+        return meetingRepo.findAllMeetingsByStatus(MeetingStatus.CREATED.toString());
+    }
+
+
+    private GregorianCalendar createStartDateOfMeeting(DateTimeReqDto dateTimeReqDto) {
         final long maxTimeToCreateInMs = 1_209_600_000;
+        GregorianCalendar startDate = CalendarUtil.createGregorianCalendarByDateTimeReqDto(dateTimeReqDto);
 
-        Calendar calendar = Calendar.getInstance();
-        final int currentYear = calendar.get(Calendar.YEAR);
-        final int currentMonth = calendar.get(Calendar.MONTH);
-        final int monthFromDto = dateTimeReqDto.getMonth();
-        GregorianCalendar gregorianCalendar =
-                new GregorianCalendar(
-                        currentYear,
-                        monthFromDto - 1,
-                        dateTimeReqDto.getDayOfMonth(),
-                        dateTimeReqDto.getHourOfDay(),
-                        dateTimeReqDto.getMinute());
-        if (monthFromDto == 1 && currentMonth == 11) {
-            gregorianCalendar.set(Calendar.YEAR, currentYear + 1);
-        }
-        final long currentTimeInMs = calendar.getTimeInMillis();
-        final long gregorianCalendarTimeInMs = gregorianCalendar.getTimeInMillis();
+        final long currentTimeInMs = new Date().getTime();
+        final long gregorianCalendarTimeInMs = startDate.getTimeInMillis();
         if ((currentTimeInMs < gregorianCalendarTimeInMs) &&
                 ((currentTimeInMs + maxTimeToCreateInMs) >= gregorianCalendarTimeInMs)) {
-            return gregorianCalendar;
+            return startDate;
         } else {
-            throw new InvalidDateTimeReqDtoException("Date time is invalid");
+            throw new InvalidDateTimeReqDtoException("Meetings can only be created 2 weeks in advance");
+        }
+    }
+
+    private GregorianCalendar createEndDateOfMeeting(GregorianCalendar startDate, DateTimeReqDto endDateReqDto) {
+        GregorianCalendar endDate = CalendarUtil.createGregorianCalendarByDateTimeReqDto(endDateReqDto);
+        if (endDate.getTimeInMillis() > startDate.getTimeInMillis()) {
+            return endDate;
+        } else {
+            throw new InvalidDateTimeReqDtoException("Invalid endDate");
         }
     }
 
@@ -187,7 +220,8 @@ public class MeetingServiceImpl implements MeetingService {
                 meeting.getDescription(),
                 meeting.getGeom().getCoordinate().x,
                 meeting.getGeom().getCoordinate().y,
-                convertDateOfMeetingToString(meeting.getDate()),
+                convertDateOfMeetingToString(meeting.getStartDate()),
+                convertDateOfMeetingToString(meeting.getEndDate()),
                 meeting.getMaxNumbOfParticipants(),
                 meeting.getCreator().getId(),
                 participantsIds

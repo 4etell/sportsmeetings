@@ -48,10 +48,12 @@ public class MeetingRestController {
     @RequestMapping(value = "/meetings", method = RequestMethod.GET)
     public PageMeetingResDto getMeetings(
             @RequestParam(required = false) List<Long> categoryIds,
-            @RequestParam Integer distance,
-            @PageableDefault(size = 3, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable) {
+            @RequestParam double userFirstCord,
+            @RequestParam double userSecondCord,
+            @RequestParam int distanceInMeters,
+            @PageableDefault(size = 3) Pageable pageable) {
 
-        return meetingService.getAllByCategoryAndDistance(pageable, categoryIds, distance);
+        return meetingService.getAllByCategoryAndDistance(pageable, categoryIds, userFirstCord, userSecondCord, distanceInMeters);
     }
 
     @RequestMapping(value = "/meetings/{id}", method = RequestMethod.GET)

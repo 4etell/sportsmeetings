@@ -45,6 +45,15 @@ public class User extends AbstractEntity {
     @NonNull
     private String password;
 
+    @Column(name = "email_notifications")
+    private boolean emailNotifications = false;
+
+    @Column(name = "telegram_bot_activation_code")
+    private String telegramBotActivationCode;
+
+    @Column(name = "telegram_bot_chat_id")
+    private Long telegramBotChatId;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_roles",
             joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
