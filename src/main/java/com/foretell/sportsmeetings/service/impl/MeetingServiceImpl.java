@@ -19,10 +19,12 @@ import com.foretell.sportsmeetings.service.MeetingCategoryService;
 import com.foretell.sportsmeetings.service.MeetingService;
 import com.foretell.sportsmeetings.service.UserService;
 import com.foretell.sportsmeetings.util.calendar.CalendarUtil;
+import com.foretell.sportsmeetings.util.timer.CustomTimer;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.PrecisionModel;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -34,9 +36,11 @@ import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TimerTask;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class MeetingServiceImpl implements MeetingService {
 
     private final GeometryFactory geoFactory = new GeometryFactory(new PrecisionModel(), 4326);
@@ -44,11 +48,13 @@ public class MeetingServiceImpl implements MeetingService {
     private final UserService userService;
     private final MeetingRepo meetingRepo;
     private final MeetingCategoryService meetingCategoryService;
+    private final CustomTimer customTimer;
 
-    public MeetingServiceImpl(UserService userService, MeetingRepo meetingRepo, MeetingCategoryService meetingCategoryService) {
+    public MeetingServiceImpl(UserService userService, MeetingRepo meetingRepo, MeetingCategoryService meetingCategoryService, CustomTimer customTimer, CustomTimer customTimer1) {
         this.userService = userService;
         this.meetingRepo = meetingRepo;
         this.meetingCategoryService = meetingCategoryService;
+        this.customTimer = customTimer1;
     }
 
     @Override
@@ -65,14 +71,26 @@ public class MeetingServiceImpl implements MeetingService {
                 meetingCategory,
                 MeetingStatus.CREATED,
                 meetingReqDto.getDescription(),
-                point,
-                startDate,
+                point, startDate,
                 endDate,
                 meetingReqDto.getMaxNumbOfParticipants(),
                 user,
                 participants
         );
-        return convertMeetingToMeetingResDto(meetingRepo.save(meeting));
+        Meeting savedMeeting = meetingRepo.save(meeting);
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                Long meetingId = savedMeeting.getId();
+                if (updateStatus(meetingId, MeetingStatus.FINISHED)) {
+                    log.info("Status of meeting with id: " + (meetingId) + " set to FINISHED");
+                } else {
+                    log.error("Cannot update status of meeting with id: " + (meetingId));
+                }
+            }
+        };
+        customTimer.schedule(timerTask, savedMeeting.getEndDate().getTime());
+        return convertMeetingToMeetingResDto(savedMeeting);
     }
 
     @Override
@@ -106,9 +124,9 @@ public class MeetingServiceImpl implements MeetingService {
         Point point = geoFactory.createPoint(
                 new Coordinate(userFirstCord, userSecondCord));
         if (categoryIds == null) {
-            page = meetingRepo.findAllByDistance(pageable, point, distance);
+            page = meetingRepo.findAllByDistance(pageable, point, distance, MeetingStatus.CREATED.toString());
         } else {
-            page = meetingRepo.findAllByDistanceAndCategoryIds(pageable, categoryIds, point, distance);
+            page = meetingRepo.findAllByDistanceAndCategoryIds(pageable, categoryIds, point, distance, MeetingStatus.CREATED.toString());
         }
         return convertMeetingPageToPageMeetingResDto(page, pageable);
     }
@@ -139,6 +157,19 @@ public class MeetingServiceImpl implements MeetingService {
             throw new UpdateParticipantsException("Server cannot add/remove this participantId: " + participantId);
         }
 
+    }
+
+    @Override
+    public boolean updateStatus(Long meetingId, MeetingStatus meetingStatus) {
+        Meeting meeting = findById(meetingId);
+        meeting.setStatus(meetingStatus);
+        meetingRepo.save(meeting);
+        return true;
+    }
+
+    @Override
+    public List<Meeting> findAllExpiredMeetings() {
+        return meetingRepo.findAllMeetingsByStatus(MeetingStatus.CREATED.toString());
     }
 
 
