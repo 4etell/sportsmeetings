@@ -15,9 +15,9 @@ public class MeetingResDto {
 
     private final String description;
 
-    private final double firstCoordinate;
+    private final double latitude;
 
-    private final double secondCoordinate;
+    private final double longitude;
 
     @ApiModelProperty(example = "23.09 / 00:59")
     private final String startDate;

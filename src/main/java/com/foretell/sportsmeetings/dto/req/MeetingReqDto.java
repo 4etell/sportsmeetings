@@ -18,9 +18,9 @@ public class MeetingReqDto {
     @Size(min = 1, max = 1000, message = "Max size of description is 1000 and min size is 1")
     private String description;
 
-    private double firstCoordinate;
+    private double latitude;
 
-    private double secondCoordinate;
+    private double longitude;
 
     @Valid
     @NotNull(message = "DateTimeReqDto cannot be null")

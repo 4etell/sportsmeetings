@@ -21,12 +21,14 @@ public interface MeetingService {
 
     PageMeetingResDto getAllWhereParticipantNotCreatorByParticipantUsername(Pageable pageable, String username);
 
-    PageMeetingResDto getAllByCategoryAndDistance(Pageable pageable, List<Long> categoryId, double userFirstCord, double userSecondCord, int distance);
+    PageMeetingResDto getAllByCategoryAndDistance(Pageable pageable, List<Long> categoryId, double userLatitude, double longitude, int distance);
 
     MeetingResDto updateParticipantsInMeeting(Long meetingId, UpdateParticipantReqDto updateParticipantReqDto, String username);
 
     boolean updateStatus(Long meetingId, MeetingStatus meetingStatus);
 
     List<Meeting> findAllExpiredMeetings();
+
+    List<Meeting> findAllMeetingsWhichNotStarted();
 
 }

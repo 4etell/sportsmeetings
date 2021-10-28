@@ -32,5 +32,8 @@ public interface MeetingRepo extends JpaRepository<Meeting, Long> {
     Page<Meeting> findAllByDistanceAndCategoryIds(Pageable pageable, List<Long> categoryIds, Point point, double distanceM, String status);
 
     @Query(value = "SELECT * FROM meetings WHERE meetings.status = ?1", nativeQuery = true)
-    List<Meeting> findAllMeetingsByStatus(String status);
+    List<Meeting> findAllByStatus(String status);
+
+    @Query(value = "SELECT * FROM meetings WHERE meetings.start_date > ?1", nativeQuery = true)
+    List<Meeting> findAllWhichNotStarted(Date date);
 }

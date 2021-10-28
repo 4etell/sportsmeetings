@@ -1,7 +1,6 @@
 package com.foretell.sportsmeetings.util.telegrambot;
 
 import com.foretell.sportsmeetings.exception.notfound.UserNotFoundException;
-import com.foretell.sportsmeetings.model.RequestToJoinMeetingStatus;
 import com.foretell.sportsmeetings.service.UserService;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +11,6 @@ import org.telegram.telegrambots.meta.api.methods.send.SendAnimation;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -87,7 +85,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     @SneakyThrows
-    public void accountIsBannedNotification(Long chatId) {
+    public void sendAccountIsBannedNotification(Long chatId) {
         SendMessage.SendMessageBuilder messageBuilder = SendMessage.builder();
         messageBuilder.chatId(chatId.toString());
         messageBuilder.text("Ваш аккаунт заблокировали, " +
@@ -96,12 +94,22 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     @SneakyThrows
-    public void accountUnbannedNotification(Long chatId) {
+    public void sendAccountUnbannedNotification(Long chatId) {
         SendMessage.SendMessageBuilder messageBuilder = SendMessage.builder();
         messageBuilder.chatId(chatId.toString());
         messageBuilder.text("Ваш аккаунт разблокировали, " +
                 "зайдите на сайт, чтобы узнать подробности: https://daniilkaranov.ru/static/media/papich.e6b97668.gif");
         execute(messageBuilder.build());
+    }
+
+    @SneakyThrows
+    public void sendStartMeetingNotification(Long chatId, String date) {
+        SendMessage.SendMessageBuilder messageBuilder = SendMessage.builder();
+        messageBuilder.chatId(chatId.toString());
+        messageBuilder.text("Не забудьте, у вас встреча " + (date) + " " +
+                "зайдите на сайт, чтобы узнать подробности: https://daniilkaranov.ru/static/media/papich.e6b97668.gif");
+        execute(messageBuilder.build());
+        log.info("StartMeetingNotification sent");
     }
 
     @Override
