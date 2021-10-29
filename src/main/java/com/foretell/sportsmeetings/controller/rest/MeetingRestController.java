@@ -1,20 +1,34 @@
 package com.foretell.sportsmeetings.controller.rest;
 
+import com.foretell.sportsmeetings.dto.req.MeetingCategoryReqDto;
 import com.foretell.sportsmeetings.dto.req.MeetingReqDto;
+import com.foretell.sportsmeetings.dto.req.RequestToJoinMeetingReqDto;
+import com.foretell.sportsmeetings.dto.req.RequestToJoinMeetingStatusReqDto;
 import com.foretell.sportsmeetings.dto.req.UpdateParticipantReqDto;
+import com.foretell.sportsmeetings.dto.res.MeetingCategoryResDto;
 import com.foretell.sportsmeetings.dto.res.MeetingResDto;
+import com.foretell.sportsmeetings.dto.res.RequestToJoinMeetingResDto;
+import com.foretell.sportsmeetings.dto.res.page.extnds.PageMeetingCategoryResDto;
 import com.foretell.sportsmeetings.dto.res.page.extnds.PageMeetingResDto;
+import com.foretell.sportsmeetings.dto.res.page.extnds.PageRequestToJoinMeetingResDto;
+import com.foretell.sportsmeetings.service.MeetingCategoryService;
 import com.foretell.sportsmeetings.service.MeetingService;
+import com.foretell.sportsmeetings.service.RequestToJoinMeetingService;
 import com.foretell.sportsmeetings.util.jwt.JwtProvider;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,17 +37,23 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
+@RequestMapping("meetings")
 public class MeetingRestController {
 
     private final JwtProvider jwtProvider;
     private final MeetingService meetingService;
+    private final MeetingCategoryService meetingCategoryService;
+    private final RequestToJoinMeetingService requestToJoinMeetingService;
 
-    public MeetingRestController(JwtProvider jwtProvider, MeetingService meetingService) {
+
+    public MeetingRestController(JwtProvider jwtProvider, MeetingService meetingService, MeetingCategoryService meetingCategoryService, RequestToJoinMeetingService requestToJoinMeetingService) {
         this.jwtProvider = jwtProvider;
         this.meetingService = meetingService;
+        this.meetingCategoryService = meetingCategoryService;
+        this.requestToJoinMeetingService = requestToJoinMeetingService;
     }
 
-    @RequestMapping(value = "/meetings", method = RequestMethod.POST)
+    @PostMapping
     public MeetingResDto createMeeting(@RequestBody @Valid MeetingReqDto meetingReqDto,
                                        HttpServletRequest httpServletRequest) {
         String usernameFromToken =
@@ -45,30 +65,30 @@ public class MeetingRestController {
             @ApiImplicitParam(name = "page", paramType = "query",
                     value = "Results page you want to retrieve (0..N)"),
     })
-    @RequestMapping(value = "/meetings", method = RequestMethod.GET)
-    public PageMeetingResDto getMeetings(
+    @GetMapping
+    public PageMeetingResDto getAllMeetings(
             @RequestParam(required = false) List<Long> categoryIds,
-            @RequestParam double userFirstCord,
-            @RequestParam double userSecondCord,
+            @RequestParam double userLatitude,
+            @RequestParam double userLongitude,
             @RequestParam int distanceInMeters,
             @PageableDefault(size = 3) Pageable pageable) {
 
-        return meetingService.getAllByCategoryAndDistance(pageable, categoryIds, userFirstCord, userSecondCord, distanceInMeters);
+        return meetingService.getAllByCategoryAndDistance(pageable, categoryIds, userLatitude, userLongitude, distanceInMeters);
     }
 
-    @RequestMapping(value = "/meetings/{id}", method = RequestMethod.GET)
-    public MeetingResDto getById(@PathVariable Long id) {
-        return meetingService.getById(id);
+    @GetMapping("{meetingId}")
+    public MeetingResDto getMeetingById(@PathVariable Long meetingId) {
+        return meetingService.getById(meetingId);
     }
 
-    @RequestMapping(value = "/meetings/{id}", method = RequestMethod.PUT)
-    public MeetingResDto updateParticipantInMeeting(@PathVariable Long id,
+    @PutMapping("{meetingId}")
+    public MeetingResDto updateParticipantInMeeting(@PathVariable Long meetingId,
                                                     @RequestBody @Valid UpdateParticipantReqDto updateParticipantReqDto,
                                                     HttpServletRequest httpServletRequest) {
         String usernameFromToken =
                 jwtProvider.getUsernameFromToken(jwtProvider.getTokenFromRequest(httpServletRequest));
 
-        return meetingService.updateParticipantsInMeeting(id, updateParticipantReqDto, usernameFromToken);
+        return meetingService.updateParticipantsInMeeting(meetingId, updateParticipantReqDto, usernameFromToken);
     }
 
 
@@ -76,7 +96,7 @@ public class MeetingRestController {
             @ApiImplicitParam(name = "page", paramType = "query",
                     value = "Results page you want to retrieve (0..N)"),
     })
-    @RequestMapping(value = "my-created-meetings", method = RequestMethod.GET)
+    @GetMapping("created")
     public PageMeetingResDto getMyCreatedMeetings(
             HttpServletRequest httpServletRequest,
             @PageableDefault(size = 3, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable) {
@@ -87,11 +107,52 @@ public class MeetingRestController {
         return meetingService.getAllByCreatorUsername(pageable, usernameFromToken);
     }
 
+    @PostMapping("{meetingId}/requests")
+    public ResponseEntity<?> createRequestToJoinMeeting(@PathVariable Long meetingId,
+                                                        @RequestBody @Valid RequestToJoinMeetingReqDto requestToJoinMeetingReqDto,
+                                                        HttpServletRequest httpServletRequest) {
+        String usernameFromToken =
+                jwtProvider.getUsernameFromToken(jwtProvider.getTokenFromRequest(httpServletRequest));
+
+        if (requestToJoinMeetingService.create(meetingId, requestToJoinMeetingReqDto, usernameFromToken)) {
+            return ResponseEntity.ok().body("Successfully created");
+        } else {
+            return ResponseEntity.internalServerError().body("Something wrong on server");
+        }
+    }
     @ApiImplicitParams({
             @ApiImplicitParam(name = "page", paramType = "query",
                     value = "Results page you want to retrieve (0..N)"),
     })
-    @RequestMapping(value = "my-attended-meetings", method = RequestMethod.GET)
+    @GetMapping("{meetingId}/requests")
+    public PageRequestToJoinMeetingResDto getRequestsByMeetingId(
+            @PathVariable Long meetingId,
+            HttpServletRequest httpServletRequest,
+            @PageableDefault(size = 3, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable) {
+
+        String usernameFromToken =
+                jwtProvider.getUsernameFromToken(jwtProvider.getTokenFromRequest(httpServletRequest));
+
+        return requestToJoinMeetingService.getByMeetingId(meetingId, usernameFromToken, pageable);
+    }
+
+    @PutMapping("{meetingId}/requests/{requestId}")
+    public RequestToJoinMeetingResDto updateStatus(
+            @PathVariable Long meetingId,
+            @PathVariable Long requestId,
+            @RequestBody @Valid RequestToJoinMeetingStatusReqDto requestToJoinMeetingStatusReqDto,
+            HttpServletRequest httpServletRequest) {
+        String usernameFromToken =
+                jwtProvider.getUsernameFromToken(jwtProvider.getTokenFromRequest(httpServletRequest));
+
+        return requestToJoinMeetingService.updateStatus(requestId, meetingId, requestToJoinMeetingStatusReqDto, usernameFromToken);
+    }
+
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page", paramType = "query",
+                    value = "Results page you want to retrieve (0..N)"),
+    })
+    @GetMapping("attended")
     public PageMeetingResDto getMyAttendedMeetings(
             HttpServletRequest httpServletRequest,
             @PageableDefault(size = 3, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable) {
@@ -100,6 +161,27 @@ public class MeetingRestController {
                 jwtProvider.getUsernameFromToken(jwtProvider.getTokenFromRequest(httpServletRequest));
 
         return meetingService.getAllWhereParticipantNotCreatorByParticipantUsername(pageable, usernameFromToken);
+    }
+
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PostMapping("categories")
+    public MeetingCategoryResDto createMeetingCategory(@RequestBody MeetingCategoryReqDto meetingCategoryReqDto) {
+        return meetingCategoryService.create(meetingCategoryReqDto);
+    }
+
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page", paramType = "query",
+                    value = "Results page you want to retrieve (0..N)"),
+    })
+    @GetMapping("categories")
+    public PageMeetingCategoryResDto getAllCategories(
+            @PageableDefault(size = 20, sort = {"name"}) Pageable pageable) {
+        return meetingCategoryService.getAll(pageable);
+    }
+
+    @GetMapping("categories/{categoryId}")
+    public MeetingCategoryResDto getCategoriesById(@PathVariable Long categoryId) {
+        return meetingCategoryService.getById(categoryId);
     }
 
 

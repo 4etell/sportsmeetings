@@ -8,9 +8,6 @@ import javax.validation.constraints.Size;
 
 @Data
 public class ProfileCommentReqDto {
-    @NotNull(message = "RecipentId cannot be null")
-    private Long recipientId;
-
     @NotBlank(message = "RecipentId cannot be blank")
     @Size(min = 1, max = 1000, message = "Max size of text is 1000 and min size is 1")
     private String text;

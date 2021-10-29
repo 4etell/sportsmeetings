@@ -36,10 +36,9 @@ public class RequestToJoinMeetingServiceImpl implements RequestToJoinMeetingServ
 
 
     @Override
-    public boolean create(RequestToJoinMeetingReqDto requestToJoinMeetingReqDto, String username) {
+    public boolean create(Long meetingId, RequestToJoinMeetingReqDto requestToJoinMeetingReqDto, String username) {
         User user = userService.findByUsername(username);
         Long userId = user.getId();
-        Long meetingId = requestToJoinMeetingReqDto.getMeetingId();
         if (requestToJoinMeetingRepo.findByMeetingIdAndCreatorId(meetingId, userId).isEmpty()) {
             Meeting meeting = meetingService.findById(meetingId);
 
@@ -78,13 +77,15 @@ public class RequestToJoinMeetingServiceImpl implements RequestToJoinMeetingServ
     }
 
     @Override
-    public RequestToJoinMeetingResDto updateStatus(Long id,
+    public RequestToJoinMeetingResDto updateStatus(Long requestId,
+                                                   Long meetingId,
                                                    RequestToJoinMeetingStatusReqDto requestToJoinMeetingStatusReqDto,
-                                                   String meetingCreatorUsername) {
-        User creator = userService.findByUsername(meetingCreatorUsername);
-        RequestToJoinMeeting requestToJoinMeeting = findById(id);
+                                                   String username) {
+        User user = userService.findByUsername(username);
+        Meeting meeting = meetingService.findById(meetingId);
+        RequestToJoinMeeting requestToJoinMeeting = findById(requestId);
 
-        if (requestToJoinMeeting.getMeeting().getCreator().getId().equals(creator.getId())) {
+        if (meeting.getCreator().getId().equals(user.getId())) {
             requestToJoinMeeting.setStatus(requestToJoinMeetingStatusReqDto.getRequestToJoinMeetingStatus());
             return convertRequestToJoinMeetingToRequestToJoinMeetingResDto(
                     requestToJoinMeetingRepo.save(requestToJoinMeeting));

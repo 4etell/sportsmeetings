@@ -29,9 +29,9 @@ public class ProfileCommentServiceImpl implements ProfileCommentService {
     }
 
     @Override
-    public ProfileCommentResDto create(ProfileCommentReqDto profileCommentReqDto, String username) {
+    public ProfileCommentResDto create(Long recipientId, ProfileCommentReqDto profileCommentReqDto, String username) {
         User author = userService.findByUsername(username);
-        User recipient = userService.findById(profileCommentReqDto.getRecipientId());
+        User recipient = userService.findById(recipientId);
         if (author.getId().equals(recipient.getId())) {
             throw new ProfileCommentException("You cannot create a comment for yourself");
         }

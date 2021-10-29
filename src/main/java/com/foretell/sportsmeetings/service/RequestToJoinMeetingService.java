@@ -8,13 +8,12 @@ import com.foretell.sportsmeetings.model.RequestToJoinMeeting;
 import org.springframework.data.domain.Pageable;
 
 public interface RequestToJoinMeetingService {
-    boolean create(RequestToJoinMeetingReqDto requestToJoinMeetingReqDto, String username);
+    boolean create(Long meetingId, RequestToJoinMeetingReqDto requestToJoinMeetingReqDto, String username);
 
     PageRequestToJoinMeetingResDto getByMeetingId(Long meetingId, String username, Pageable pageable);
 
-    RequestToJoinMeetingResDto updateStatus(Long id,
-                                            RequestToJoinMeetingStatusReqDto requestToJoinMeetingStatusReqDto,
-                                            String meetingCreatorUsername);
+    RequestToJoinMeetingResDto updateStatus(Long requestId, Long meetingId,
+                                            RequestToJoinMeetingStatusReqDto requestToJoinMeetingStatusReqDto, String username);
 
     RequestToJoinMeeting findById(Long id);
 }

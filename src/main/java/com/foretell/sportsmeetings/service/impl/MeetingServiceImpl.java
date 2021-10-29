@@ -19,6 +19,7 @@ import com.foretell.sportsmeetings.service.MeetingCategoryService;
 import com.foretell.sportsmeetings.service.MeetingService;
 import com.foretell.sportsmeetings.service.UserService;
 import com.foretell.sportsmeetings.util.calendar.CalendarUtil;
+import com.foretell.sportsmeetings.util.telegrambot.TelegramBot;
 import com.foretell.sportsmeetings.util.timer.CustomTimer;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -29,6 +30,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -49,12 +51,14 @@ public class MeetingServiceImpl implements MeetingService {
     private final MeetingRepo meetingRepo;
     private final MeetingCategoryService meetingCategoryService;
     private final CustomTimer customTimer;
+    private final TelegramBot telegramBot;
 
-    public MeetingServiceImpl(UserService userService, MeetingRepo meetingRepo, MeetingCategoryService meetingCategoryService, CustomTimer customTimer, CustomTimer customTimer1) {
+    public MeetingServiceImpl(UserService userService, MeetingRepo meetingRepo, MeetingCategoryService meetingCategoryService, CustomTimer customTimer, CustomTimer customTimer1, TelegramBot telegramBot) {
         this.userService = userService;
         this.meetingRepo = meetingRepo;
         this.meetingCategoryService = meetingCategoryService;
         this.customTimer = customTimer1;
+        this.telegramBot = telegramBot;
     }
 
     @Override
@@ -65,7 +69,7 @@ public class MeetingServiceImpl implements MeetingService {
         GregorianCalendar endDate = createEndDateOfMeeting(startDate, meetingReqDto.getEndDate());
         Set<User> participants = new HashSet<>();
         Point point = geoFactory.createPoint(
-                new Coordinate(meetingReqDto.getFirstCoordinate(), meetingReqDto.getSecondCoordinate()));
+                new Coordinate(meetingReqDto.getLatitude(), meetingReqDto.getLongitude()));
         participants.add(user);
         Meeting meeting = new Meeting(
                 meetingCategory,
@@ -90,6 +94,19 @@ public class MeetingServiceImpl implements MeetingService {
             }
         };
         customTimer.schedule(timerTask, savedMeeting.getEndDate().getTime());
+        long timeUntilEndDate = 10800000;
+        customTimer.schedule(new TimerTask() {
+                                 @Override
+                                 public void run() {
+                                     savedMeeting.getParticipants().forEach(u -> {
+                                         telegramBot.sendStartMeetingNotification(
+                                                 u.getTelegramBotChatId(),
+                                                 new SimpleDateFormat("dd-M-yyyy hh:mm")
+                                                         .format(startDate.getTime()));
+                                     });
+                                 }
+                             },
+                new Date(savedMeeting.getStartDate().getTimeInMillis() - timeUntilEndDate));
         return convertMeetingToMeetingResDto(savedMeeting);
     }
 
@@ -112,17 +129,19 @@ public class MeetingServiceImpl implements MeetingService {
     }
 
     @Override
-    public PageMeetingResDto getAllWhereParticipantNotCreatorByParticipantUsername(Pageable pageable, String username) {
+    public PageMeetingResDto getAllWhereParticipantNotCreatorByParticipantUsername(Pageable pageable, String
+            username) {
         User user = userService.findByUsername(username);
         Page<Meeting> page = meetingRepo.findAllWhereParticipantNotCreatorByParticipantId(pageable, user.getId());
         return convertMeetingPageToPageMeetingResDto(page, pageable);
     }
 
     @Override
-    public PageMeetingResDto getAllByCategoryAndDistance(Pageable pageable, List<Long> categoryIds, double userFirstCord, double userSecondCord, int distance) {
+    public PageMeetingResDto getAllByCategoryAndDistance(Pageable pageable, List<Long> categoryIds,
+                                                         double userLatitude, double longitude, int distance) {
         Page<Meeting> page;
         Point point = geoFactory.createPoint(
-                new Coordinate(userFirstCord, userSecondCord));
+                new Coordinate(userLatitude, longitude));
         if (categoryIds == null) {
             page = meetingRepo.findAllByDistance(pageable, point, distance, MeetingStatus.CREATED.toString());
         } else {
@@ -132,7 +151,8 @@ public class MeetingServiceImpl implements MeetingService {
     }
 
     @Override
-    public MeetingResDto updateParticipantsInMeeting(Long meetingId, UpdateParticipantReqDto updateParticipantReqDto, String username) {
+    public MeetingResDto updateParticipantsInMeeting(Long meetingId, UpdateParticipantReqDto
+            updateParticipantReqDto, String username) {
         Meeting meeting = findById(meetingId);
         User user = userService.findByUsername(username);
         Long participantId = updateParticipantReqDto.getParticipantId();
@@ -169,7 +189,12 @@ public class MeetingServiceImpl implements MeetingService {
 
     @Override
     public List<Meeting> findAllExpiredMeetings() {
-        return meetingRepo.findAllMeetingsByStatus(MeetingStatus.CREATED.toString());
+        return meetingRepo.findAllByStatus(MeetingStatus.CREATED.toString());
+    }
+
+    @Override
+    public List<Meeting> findAllMeetingsWhichNotStarted() {
+        return meetingRepo.findAllWhichNotStarted(new Date());
     }
 
 

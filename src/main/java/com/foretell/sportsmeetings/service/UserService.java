@@ -5,6 +5,7 @@ import com.foretell.sportsmeetings.dto.req.RegistrationReqDto;
 import com.foretell.sportsmeetings.dto.res.TelegramBotActivationCodeResDto;
 import com.foretell.sportsmeetings.dto.res.UserInfoResDto;
 import com.foretell.sportsmeetings.exception.InvalidProfilePhotoException;
+import com.foretell.sportsmeetings.model.Role;
 import com.foretell.sportsmeetings.model.User;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,6 +23,8 @@ public interface UserService {
     UserInfoResDto changeProfile(ProfileInfoReqDto profileInfoReqDto, String username);
 
     TelegramBotActivationCodeResDto getTelegramBotActivationCode(String username);
+
+    boolean setUserRole(Long userId, String roleName);
 
     boolean activateTelegramBot(String telegramBotActivationCode, Long telegramBotChatId);
 
