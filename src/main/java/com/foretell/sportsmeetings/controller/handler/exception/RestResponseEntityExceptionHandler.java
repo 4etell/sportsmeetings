@@ -17,6 +17,7 @@ import com.foretell.sportsmeetings.exception.UsernameAlreadyExistsException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -53,6 +54,11 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     })
     public ResponseEntity<?> handleNotFoundException(Exception ex, WebRequest request) {
         return ResponseEntity.status(404).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(value = {AccessDeniedException.class})
+    public ResponseEntity<?> handleAccessDeniedException(Exception ex, WebRequest request) {
+        return ResponseEntity.status(403).body(ex.getMessage());
     }
 
     @ExceptionHandler(value = {

@@ -1,11 +1,13 @@
 package com.foretell.sportsmeetings.service.impl;
 
+import com.foretell.sportsmeetings.dto.req.MeetingCategoryReqDto;
 import com.foretell.sportsmeetings.dto.res.MeetingCategoryResDto;
 import com.foretell.sportsmeetings.dto.res.page.extnds.PageMeetingCategoryResDto;
 import com.foretell.sportsmeetings.exception.notfound.MeetingCategoryNotFoundException;
 import com.foretell.sportsmeetings.model.MeetingCategory;
 import com.foretell.sportsmeetings.repo.MeetingCategoryRepo;
 import com.foretell.sportsmeetings.service.MeetingCategoryService;
+import com.foretell.sportsmeetings.util.string.NamingUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -40,13 +42,15 @@ public class MeetingCategoryServiceImpl implements MeetingCategoryService {
     }
 
     @Override
-    public MeetingCategoryResDto create(MeetingCategory meetingCategory) {
+    public MeetingCategoryResDto create(MeetingCategoryReqDto meetingCategoryReqDto) {
+        MeetingCategory meetingCategory = new MeetingCategory();
+        meetingCategory.setName(NamingUtil.generateCapitalizedString(meetingCategoryReqDto.getName()));
         return convertMeetingCategoryToMeetingCategoryResDto(meetingCategoryRepo.save(meetingCategory));
     }
 
     private MeetingCategoryResDto convertMeetingCategoryToMeetingCategoryResDto(MeetingCategory meetingCategory) {
         return new MeetingCategoryResDto(
-               meetingCategory.getId(),
+                meetingCategory.getId(),
                 meetingCategory.getName()
         );
     }

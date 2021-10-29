@@ -114,6 +114,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public boolean setUserRole(Long userId, String roleName) {
+        User user = findById(userId);
+        List<Role> roles = new ArrayList<Role>();
+        Role roleUser = roleRepo.findByName(roleName).
+                orElseThrow(() -> new RoleNotFoundException(roleName + " not found"));
+        roles.add(roleUser);
+        user.setRoles(roles);
+        userRepo.save(user);
+        return true;
+    }
+
+    @Override
     public boolean activateTelegramBot(String telegramBotActivationCode, Long telegramBotChatId) {
         User user = userRepo.findByTelegramBotActivationCode(telegramBotActivationCode).orElseThrow(
                 () -> new UserNotFoundException("User with activation code " + (telegramBotActivationCode) + " not found"));
