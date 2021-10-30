@@ -14,14 +14,13 @@ import com.foretell.sportsmeetings.dto.res.page.extnds.PageRequestToJoinMeetingR
 import com.foretell.sportsmeetings.service.MeetingCategoryService;
 import com.foretell.sportsmeetings.service.MeetingService;
 import com.foretell.sportsmeetings.service.RequestToJoinMeetingService;
-import com.foretell.sportsmeetings.util.jwt.JwtProvider;
+import com.foretell.sportsmeetings.security.jwt.JwtProvider;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

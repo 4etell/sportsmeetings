@@ -2,7 +2,7 @@ package com.foretell.sportsmeetings.controller.rest;
 
 import com.foretell.sportsmeetings.dto.res.TelegramBotActivationCodeResDto;
 import com.foretell.sportsmeetings.service.UserService;
-import com.foretell.sportsmeetings.util.jwt.JwtProvider;
+import com.foretell.sportsmeetings.security.jwt.JwtProvider;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
