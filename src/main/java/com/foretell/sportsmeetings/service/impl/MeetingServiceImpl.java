@@ -35,7 +35,6 @@ import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 @Service
@@ -57,11 +56,11 @@ public class MeetingServiceImpl implements MeetingService {
     }
 
     @Override
-    public MeetingResDto createMeeting(MeetingReqDto meetingReqDto, String username, TimeZone timeZone) {
+    public MeetingResDto createMeeting(MeetingReqDto meetingReqDto, String username) {
         User user = userService.findByUsername(username);
         MeetingCategory meetingCategory = meetingCategoryService.findById(meetingReqDto.getCategoryId());
-        GregorianCalendar startDate = createStartDateOfMeeting(meetingReqDto.getStartDate(), timeZone);
-        GregorianCalendar endDate = createEndDateOfMeeting(startDate, meetingReqDto.getEndDate(), timeZone);
+        GregorianCalendar startDate = createStartDateOfMeeting(meetingReqDto.getStartDate());
+        GregorianCalendar endDate = createEndDateOfMeeting(startDate, meetingReqDto.getEndDate());
         Set<User> participants = new HashSet<>();
         Point point = geoFactory.createPoint(
                 new Coordinate(meetingReqDto.getLatitude(), meetingReqDto.getLongitude()));
@@ -172,9 +171,9 @@ public class MeetingServiceImpl implements MeetingService {
     }
 
 
-    private GregorianCalendar createStartDateOfMeeting(DateTimeReqDto dateTimeReqDto, TimeZone timeZone) {
+    private GregorianCalendar createStartDateOfMeeting(DateTimeReqDto dateTimeReqDto) {
         final long maxTimeToCreateInMs = 1_209_600_000;
-        GregorianCalendar startDate = CalendarUtil.createGregorianCalendarByDateTimeReqDto(dateTimeReqDto, timeZone);
+        GregorianCalendar startDate = CalendarUtil.createGregorianCalendarByDateTimeReqDto(dateTimeReqDto);
 
         final long currentTimeInMs = new Date().getTime();
         final long gregorianCalendarTimeInMs = startDate.getTimeInMillis();
@@ -186,8 +185,8 @@ public class MeetingServiceImpl implements MeetingService {
         }
     }
 
-    private GregorianCalendar createEndDateOfMeeting(GregorianCalendar startDate, DateTimeReqDto endDateReqDto, TimeZone timeZone) {
-        GregorianCalendar endDate = CalendarUtil.createGregorianCalendarByDateTimeReqDto(endDateReqDto, timeZone);
+    private GregorianCalendar createEndDateOfMeeting(GregorianCalendar startDate, DateTimeReqDto endDateReqDto) {
+        GregorianCalendar endDate = CalendarUtil.createGregorianCalendarByDateTimeReqDto(endDateReqDto);
         if (endDate.getTimeInMillis() > startDate.getTimeInMillis()) {
             return endDate;
         } else {

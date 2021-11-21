@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 @Data
 @RequiredArgsConstructor
@@ -21,4 +22,6 @@ public class DateTimeReqDto {
     @Min(value = 0, message = "Min value of minuteOfDay is 0")
     @Max(value = 59, message = "Max value of minuteOfDay is 59")
     private final int minute;
+    @NotNull
+    private final int timeZoneOffset;
 }

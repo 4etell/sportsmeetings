@@ -1,19 +1,19 @@
 package com.foretell.sportsmeetings.controller.handler.exception;
 
-import com.foretell.sportsmeetings.exception.UpdateParticipantsException;
 import com.foretell.sportsmeetings.exception.InvalidDateTimeReqDtoException;
 import com.foretell.sportsmeetings.exception.InvalidProfilePhotoException;
 import com.foretell.sportsmeetings.exception.MaxNumbOfMeetingParticipantsException;
+import com.foretell.sportsmeetings.exception.ProfileCommentException;
+import com.foretell.sportsmeetings.exception.RequestToJoinMeetingException;
+import com.foretell.sportsmeetings.exception.UpdateParticipantsException;
+import com.foretell.sportsmeetings.exception.UserHaveNotPermissionException;
+import com.foretell.sportsmeetings.exception.UsernameAlreadyExistsException;
 import com.foretell.sportsmeetings.exception.notfound.MeetingCategoryNotFoundException;
 import com.foretell.sportsmeetings.exception.notfound.MeetingNotFoundException;
-import com.foretell.sportsmeetings.exception.ProfileCommentException;
 import com.foretell.sportsmeetings.exception.notfound.ProfileCommentNotFoundException;
-import com.foretell.sportsmeetings.exception.RequestToJoinMeetingException;
 import com.foretell.sportsmeetings.exception.notfound.RequestToJoinMeetingNotFoundException;
 import com.foretell.sportsmeetings.exception.notfound.RoleNotFoundException;
-import com.foretell.sportsmeetings.exception.UserHaveNotPermissionException;
 import com.foretell.sportsmeetings.exception.notfound.UserNotFoundException;
-import com.foretell.sportsmeetings.exception.UsernameAlreadyExistsException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +41,13 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         }
 
         return ResponseEntity.badRequest().body(requestBody);
+    }
+
+    @ExceptionHandler(value = {
+            Exception.class
+    })
+    public ResponseEntity<?> handleAllExceptions(Exception ex, WebRequest request) {
+        return ResponseEntity.internalServerError().body("Something wrong on server");
     }
 
 

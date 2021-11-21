@@ -56,11 +56,10 @@ public class MeetingRestController {
 
     @PostMapping
     public MeetingResDto createMeeting(@RequestBody @Valid MeetingReqDto meetingReqDto,
-                                       HttpServletRequest httpServletRequest,
-                                       TimeZone timeZone) {
+                                       HttpServletRequest httpServletRequest) {
         String usernameFromToken =
                 jwtProvider.getUsernameFromToken(jwtProvider.getTokenFromRequest(httpServletRequest));
-        return meetingService.createMeeting(meetingReqDto, usernameFromToken, timeZone);
+        return meetingService.createMeeting(meetingReqDto, usernameFromToken);
     }
 
     @ApiImplicitParams({
