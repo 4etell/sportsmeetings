@@ -85,24 +85,6 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     @SneakyThrows
-    public void sendAccountIsBannedNotification(Long chatId) {
-        SendMessage.SendMessageBuilder messageBuilder = SendMessage.builder();
-        messageBuilder.chatId(chatId.toString());
-        messageBuilder.text("Ваш аккаунт заблокировали, " +
-                "зайдите на сайт, чтобы узнать подробности: https://daniilkaranov.ru/static/media/papich.e6b97668.gif");
-        execute(messageBuilder.build());
-    }
-
-    @SneakyThrows
-    public void sendAccountUnbannedNotification(Long chatId) {
-        SendMessage.SendMessageBuilder messageBuilder = SendMessage.builder();
-        messageBuilder.chatId(chatId.toString());
-        messageBuilder.text("Ваш аккаунт разблокировали, " +
-                "зайдите на сайт, чтобы узнать подробности: https://daniilkaranov.ru/static/media/papich.e6b97668.gif");
-        execute(messageBuilder.build());
-    }
-
-    @SneakyThrows
     public void sendStartMeetingNotification(Long chatId, String date) {
         SendMessage.SendMessageBuilder messageBuilder = SendMessage.builder();
         messageBuilder.chatId(chatId.toString());
@@ -110,6 +92,15 @@ public class TelegramBot extends TelegramLongPollingBot {
                 "зайдите на сайт, чтобы узнать подробности: https://daniilkaranov.ru/static/media/papich.e6b97668.gif");
         execute(messageBuilder.build());
         log.info("StartMeetingNotification sent");
+    }
+
+    @SneakyThrows
+    public void sendRateMeetingNotification(Long chatId) {
+        SendMessage.SendMessageBuilder messageBuilder = SendMessage.builder();
+        messageBuilder.chatId(chatId.toString());
+        messageBuilder.text("У вас только что закончилась встреча, оставьте отзыв на странице организатора: " +
+                "https://daniilkaranov.ru/static/media/papich.e6b97668.gif");
+        execute(messageBuilder.build());
     }
 
     @Override

@@ -19,8 +19,7 @@ import com.foretell.sportsmeetings.service.MeetingCategoryService;
 import com.foretell.sportsmeetings.service.MeetingService;
 import com.foretell.sportsmeetings.service.UserService;
 import com.foretell.sportsmeetings.util.calendar.CalendarUtil;
-import com.foretell.sportsmeetings.util.telegrambot.TelegramBot;
-import com.foretell.sportsmeetings.util.timer.CustomTimer;
+import com.foretell.sportsmeetings.util.scheduler.CustomScheduler;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
@@ -30,15 +29,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TimerTask;
 import java.util.stream.Collectors;
 
 @Service
@@ -50,15 +46,13 @@ public class MeetingServiceImpl implements MeetingService {
     private final UserService userService;
     private final MeetingRepo meetingRepo;
     private final MeetingCategoryService meetingCategoryService;
-    private final CustomTimer customTimer;
-    private final TelegramBot telegramBot;
+    private final CustomScheduler customScheduler;
 
-    public MeetingServiceImpl(UserService userService, MeetingRepo meetingRepo, MeetingCategoryService meetingCategoryService, CustomTimer customTimer, CustomTimer customTimer1, TelegramBot telegramBot) {
+    public MeetingServiceImpl(UserService userService, MeetingRepo meetingRepo, MeetingCategoryService meetingCategoryService, CustomScheduler customScheduler) {
         this.userService = userService;
         this.meetingRepo = meetingRepo;
         this.meetingCategoryService = meetingCategoryService;
-        this.customTimer = customTimer1;
-        this.telegramBot = telegramBot;
+        this.customScheduler = customScheduler;
     }
 
     @Override
@@ -81,32 +75,11 @@ public class MeetingServiceImpl implements MeetingService {
                 user,
                 participants
         );
+
         Meeting savedMeeting = meetingRepo.save(meeting);
-        TimerTask timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                Long meetingId = savedMeeting.getId();
-                if (updateStatus(meetingId, MeetingStatus.FINISHED)) {
-                    log.info("Status of meeting with id: " + (meetingId) + " set to FINISHED");
-                } else {
-                    log.error("Cannot update status of meeting with id: " + (meetingId));
-                }
-            }
-        };
-        customTimer.schedule(timerTask, savedMeeting.getEndDate().getTime());
-        long timeUntilEndDate = 10800000;
-        customTimer.schedule(new TimerTask() {
-                                 @Override
-                                 public void run() {
-                                     savedMeeting.getParticipants().forEach(u -> {
-                                         telegramBot.sendStartMeetingNotification(
-                                                 u.getTelegramBotChatId(),
-                                                 new SimpleDateFormat("dd-M-yyyy hh:mm")
-                                                         .format(startDate.getTime()));
-                                     });
-                                 }
-                             },
-                new Date(savedMeeting.getStartDate().getTimeInMillis() - timeUntilEndDate));
+        customScheduler.scheduleMeetingFinishedStatusTask(savedMeeting.getId(), savedMeeting.getEndDate().getTime());
+        customScheduler.scheduleTelegramStartMeetingNotification(savedMeeting.getId(), savedMeeting.getEndDate().getTimeInMillis() - 7200000);
+
         return convertMeetingToMeetingResDto(savedMeeting);
     }
 
@@ -221,21 +194,6 @@ public class MeetingServiceImpl implements MeetingService {
         }
     }
 
-
-    private String convertDateOfMeetingToString(GregorianCalendar gregorianCalendar) {
-        int calendarDay = gregorianCalendar.get(Calendar.DAY_OF_MONTH);
-        int calendarMonth = gregorianCalendar.get(Calendar.MONTH) + 1;
-        int calendarHour = gregorianCalendar.get(Calendar.HOUR_OF_DAY);
-        int calendarMinute = gregorianCalendar.get(Calendar.MINUTE);
-
-        String day = calendarDay < 10 ? "0" + calendarDay : String.valueOf(calendarDay);
-        String month = calendarMonth < 10 ? "0" + calendarMonth : String.valueOf(calendarMonth);
-        String hour = calendarHour < 10 ? "0" + calendarHour : String.valueOf(calendarHour);
-        String minute = calendarMinute < 10 ? "0" + calendarMinute : String.valueOf(calendarMinute);
-
-        return day + "." + month + " / " + hour + ":" + minute;
-    }
-
     private MeetingResDto convertMeetingToMeetingResDto(Meeting meeting) {
         List<Long> participantsIds = new ArrayList<>();
         meeting.getParticipants().forEach(user -> participantsIds.add(user.getId()));
@@ -245,8 +203,8 @@ public class MeetingServiceImpl implements MeetingService {
                 meeting.getDescription(),
                 meeting.getGeom().getCoordinate().x,
                 meeting.getGeom().getCoordinate().y,
-                convertDateOfMeetingToString(meeting.getStartDate()),
-                convertDateOfMeetingToString(meeting.getEndDate()),
+                CalendarUtil.convertDateOfMeetingToString(meeting.getStartDate()),
+                CalendarUtil.convertDateOfMeetingToString(meeting.getEndDate()),
                 meeting.getMaxNumbOfParticipants(),
                 meeting.getCreator().getId(),
                 participantsIds
