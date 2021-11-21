@@ -2,12 +2,14 @@ package com.foretell.sportsmeetings.util.calendar;
 
 import com.foretell.sportsmeetings.dto.req.DateTimeReqDto;
 
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
 public class CalendarUtil {
-    public static GregorianCalendar createGregorianCalendarByDateTimeReqDto(DateTimeReqDto dateTimeReqDto, TimeZone timeZone) {
+    public static GregorianCalendar createGregorianCalendarByDateTimeReqDto(DateTimeReqDto dateTimeReqDto) {
         Calendar calendar = Calendar.getInstance();
         final int currentYear = calendar.get(Calendar.YEAR);
         final int currentMonth = calendar.get(Calendar.MONTH);
@@ -22,8 +24,10 @@ public class CalendarUtil {
         if (monthFromDto == 1 && currentMonth == 11) {
             gregorianCalendar.set(Calendar.YEAR, currentYear + 1);
         }
-        System.out.println(timeZone);
-        gregorianCalendar.setTimeZone(timeZone);
+        ZoneOffset zoneOffset =
+                ZoneOffset.ofTotalSeconds(-dateTimeReqDto.getTimeZoneOffset() * 60);
+        gregorianCalendar.setTimeZone(TimeZone.getTimeZone(zoneOffset));
+        System.out.println(TimeZone.getTimeZone(zoneOffset));
         return gregorianCalendar;
     }
 
