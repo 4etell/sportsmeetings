@@ -8,6 +8,7 @@ import com.foretell.sportsmeetings.exception.RequestToJoinMeetingException;
 import com.foretell.sportsmeetings.exception.UserHaveNotPermissionException;
 import com.foretell.sportsmeetings.exception.notfound.RequestToJoinMeetingNotFoundException;
 import com.foretell.sportsmeetings.model.Meeting;
+import com.foretell.sportsmeetings.model.MeetingStatus;
 import com.foretell.sportsmeetings.model.RequestToJoinMeeting;
 import com.foretell.sportsmeetings.model.RequestToJoinMeetingStatus;
 import com.foretell.sportsmeetings.model.User;
@@ -15,6 +16,7 @@ import com.foretell.sportsmeetings.repo.RequestToJoinMeetingRepo;
 import com.foretell.sportsmeetings.service.MeetingService;
 import com.foretell.sportsmeetings.service.RequestToJoinMeetingService;
 import com.foretell.sportsmeetings.service.UserService;
+import com.foretell.sportsmeetings.util.telegrambot.TelegramBot;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -27,11 +29,13 @@ public class RequestToJoinMeetingServiceImpl implements RequestToJoinMeetingServ
     private final RequestToJoinMeetingRepo requestToJoinMeetingRepo;
     private final UserService userService;
     private final MeetingService meetingService;
+    private final TelegramBot telegramBot;
 
-    public RequestToJoinMeetingServiceImpl(RequestToJoinMeetingRepo requestToJoinMeetingRepo, UserService userService, MeetingService meetingService) {
+    public RequestToJoinMeetingServiceImpl(RequestToJoinMeetingRepo requestToJoinMeetingRepo, UserService userService, MeetingService meetingService, TelegramBot telegramBot) {
         this.requestToJoinMeetingRepo = requestToJoinMeetingRepo;
         this.userService = userService;
         this.meetingService = meetingService;
+        this.telegramBot = telegramBot;
     }
 
 
@@ -46,6 +50,10 @@ public class RequestToJoinMeetingServiceImpl implements RequestToJoinMeetingServ
                 throw new RequestToJoinMeetingException("You cannot create request to your meeting");
             }
 
+            if (meeting.getStatus() == MeetingStatus.FINISHED) {
+                throw new RequestToJoinMeetingException("You cannot create request to finished meetings");
+            }
+
             RequestToJoinMeeting requestToJoinMeeting = new RequestToJoinMeeting(
                     requestToJoinMeetingReqDto.getDescription(),
                     user,
@@ -53,6 +61,9 @@ public class RequestToJoinMeetingServiceImpl implements RequestToJoinMeetingServ
                     RequestToJoinMeetingStatus.CREATED
             );
             requestToJoinMeetingRepo.save(requestToJoinMeeting);
+            if (meeting.getCreator().getTelegramBotChatId() != null) {
+                telegramBot.sendNewRequestToMeetingNotification(meeting.getCreator().getTelegramBotChatId());
+            }
             return true;
         } else {
             throw new RequestToJoinMeetingException("You already created request to this meeting");
@@ -87,6 +98,10 @@ public class RequestToJoinMeetingServiceImpl implements RequestToJoinMeetingServ
 
         if (meeting.getCreator().getId().equals(user.getId())) {
             requestToJoinMeeting.setStatus(requestToJoinMeetingStatusReqDto.getRequestToJoinMeetingStatus());
+            if (requestToJoinMeetingStatusReqDto.getRequestToJoinMeetingStatus() == RequestToJoinMeetingStatus.ACCEPTED
+                    && requestToJoinMeeting.getCreator().getTelegramBotChatId() != null) {
+                telegramBot.sendRequestAcceptedNotification(requestToJoinMeeting.getCreator().getTelegramBotChatId());
+            }
             return convertRequestToJoinMeetingToRequestToJoinMeetingResDto(
                     requestToJoinMeetingRepo.save(requestToJoinMeeting));
         } else {

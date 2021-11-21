@@ -8,7 +8,7 @@ import com.foretell.sportsmeetings.dto.res.page.extnds.PageProfileCommentResDto;
 import com.foretell.sportsmeetings.exception.InvalidProfilePhotoException;
 import com.foretell.sportsmeetings.service.ProfileCommentService;
 import com.foretell.sportsmeetings.service.UserService;
-import com.foretell.sportsmeetings.util.jwt.JwtProvider;
+import com.foretell.sportsmeetings.security.jwt.JwtProvider;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import org.springframework.data.domain.Pageable;

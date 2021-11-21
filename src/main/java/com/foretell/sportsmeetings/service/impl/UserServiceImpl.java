@@ -13,6 +13,7 @@ import com.foretell.sportsmeetings.model.User;
 import com.foretell.sportsmeetings.repo.RoleRepo;
 import com.foretell.sportsmeetings.repo.UserRepo;
 import com.foretell.sportsmeetings.service.UserService;
+import com.foretell.sportsmeetings.util.telegrambot.TelegramBot;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

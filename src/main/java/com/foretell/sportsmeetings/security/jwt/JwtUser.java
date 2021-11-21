@@ -1,4 +1,4 @@
-package com.foretell.sportsmeetings.util.jwt;
+package com.foretell.sportsmeetings.security.jwt;
 
 import com.foretell.sportsmeetings.model.Role;
 import com.foretell.sportsmeetings.model.User;
