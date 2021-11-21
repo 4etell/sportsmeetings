@@ -22,6 +22,7 @@ public class CalendarUtil {
         if (monthFromDto == 1 && currentMonth == 11) {
             gregorianCalendar.set(Calendar.YEAR, currentYear + 1);
         }
+        System.out.println(timeZone);
         gregorianCalendar.setTimeZone(timeZone);
         return gregorianCalendar;
     }
