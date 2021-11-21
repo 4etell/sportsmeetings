@@ -11,10 +11,10 @@ import com.foretell.sportsmeetings.dto.res.RequestToJoinMeetingResDto;
 import com.foretell.sportsmeetings.dto.res.page.extnds.PageMeetingCategoryResDto;
 import com.foretell.sportsmeetings.dto.res.page.extnds.PageMeetingResDto;
 import com.foretell.sportsmeetings.dto.res.page.extnds.PageRequestToJoinMeetingResDto;
+import com.foretell.sportsmeetings.security.jwt.JwtProvider;
 import com.foretell.sportsmeetings.service.MeetingCategoryService;
 import com.foretell.sportsmeetings.service.MeetingService;
 import com.foretell.sportsmeetings.service.RequestToJoinMeetingService;
-import com.foretell.sportsmeetings.security.jwt.JwtProvider;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import org.springframework.data.domain.Pageable;
@@ -30,10 +30,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.RequestContextUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
+import java.util.TimeZone;
 
 @RestController
 @RequestMapping("meetings")
@@ -54,10 +56,11 @@ public class MeetingRestController {
 
     @PostMapping
     public MeetingResDto createMeeting(@RequestBody @Valid MeetingReqDto meetingReqDto,
-                                       HttpServletRequest httpServletRequest) {
+                                       HttpServletRequest httpServletRequest,
+                                       TimeZone timeZone) {
         String usernameFromToken =
                 jwtProvider.getUsernameFromToken(jwtProvider.getTokenFromRequest(httpServletRequest));
-        return meetingService.createMeeting(meetingReqDto, usernameFromToken);
+        return meetingService.createMeeting(meetingReqDto, usernameFromToken, timeZone);
     }
 
     @ApiImplicitParams({
@@ -119,6 +122,7 @@ public class MeetingRestController {
             return ResponseEntity.internalServerError().body("Something wrong on server");
         }
     }
+
     @ApiImplicitParams({
             @ApiImplicitParam(name = "page", paramType = "query",
                     value = "Results page you want to retrieve (0..N)"),
