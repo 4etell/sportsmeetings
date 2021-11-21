@@ -4,9 +4,10 @@ import com.foretell.sportsmeetings.dto.req.DateTimeReqDto;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 public class CalendarUtil {
-    public static GregorianCalendar createGregorianCalendarByDateTimeReqDto(DateTimeReqDto dateTimeReqDto) {
+    public static GregorianCalendar createGregorianCalendarByDateTimeReqDto(DateTimeReqDto dateTimeReqDto, TimeZone timeZone) {
         Calendar calendar = Calendar.getInstance();
         final int currentYear = calendar.get(Calendar.YEAR);
         final int currentMonth = calendar.get(Calendar.MONTH);
@@ -21,6 +22,7 @@ public class CalendarUtil {
         if (monthFromDto == 1 && currentMonth == 11) {
             gregorianCalendar.set(Calendar.YEAR, currentYear + 1);
         }
+        gregorianCalendar.setTimeZone(timeZone);
         return gregorianCalendar;
     }
 

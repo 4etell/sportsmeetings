@@ -9,9 +9,10 @@ import com.foretell.sportsmeetings.model.MeetingStatus;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.TimeZone;
 
 public interface MeetingService {
-    MeetingResDto createMeeting(MeetingReqDto meetingReqDto, String username);
+    MeetingResDto createMeeting(MeetingReqDto meetingReqDto, String username, TimeZone timeZone);
 
     Meeting findById(Long id);
 
