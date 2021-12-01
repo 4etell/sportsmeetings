@@ -4,6 +4,7 @@ import com.foretell.sportsmeetings.dto.req.RequestToJoinMeetingReqDto;
 import com.foretell.sportsmeetings.dto.req.RequestToJoinMeetingStatusReqDto;
 import com.foretell.sportsmeetings.dto.res.RequestToJoinMeetingResDto;
 import com.foretell.sportsmeetings.dto.res.page.extnds.PageRequestToJoinMeetingResDto;
+import com.foretell.sportsmeetings.exception.RequestToJoinMeetingAlreadyCreatedException;
 import com.foretell.sportsmeetings.exception.RequestToJoinMeetingException;
 import com.foretell.sportsmeetings.exception.UserHaveNotPermissionException;
 import com.foretell.sportsmeetings.exception.notfound.RequestToJoinMeetingNotFoundException;
@@ -66,7 +67,7 @@ public class RequestToJoinMeetingServiceImpl implements RequestToJoinMeetingServ
             }
             return true;
         } else {
-            throw new RequestToJoinMeetingException("You already created request to this meeting");
+            throw new RequestToJoinMeetingAlreadyCreatedException("You already created request to this meeting");
         }
     }
 
