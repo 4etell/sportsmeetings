@@ -1,4 +1,4 @@
-package com.foretell.sportsmeetings.util.jwt;
+package com.foretell.sportsmeetings.security.jwt;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

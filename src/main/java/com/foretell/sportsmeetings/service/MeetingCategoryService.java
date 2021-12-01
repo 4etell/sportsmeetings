@@ -1,5 +1,6 @@
 package com.foretell.sportsmeetings.service;
 
+import com.foretell.sportsmeetings.dto.req.MeetingCategoryReqDto;
 import com.foretell.sportsmeetings.dto.res.MeetingCategoryResDto;
 import com.foretell.sportsmeetings.dto.res.page.extnds.PageMeetingCategoryResDto;
 import com.foretell.sportsmeetings.model.MeetingCategory;
@@ -12,6 +13,6 @@ public interface MeetingCategoryService {
 
     MeetingCategoryResDto getById(Long id);
 
-    MeetingCategoryResDto create(MeetingCategory meetingCategory);
+    MeetingCategoryResDto create(MeetingCategoryReqDto meetingCategoryReqDto);
 
 }

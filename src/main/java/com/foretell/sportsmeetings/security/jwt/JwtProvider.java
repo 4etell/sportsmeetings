@@ -1,4 +1,4 @@
-package com.foretell.sportsmeetings.util.jwt;
+package com.foretell.sportsmeetings.security.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

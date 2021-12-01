@@ -2,6 +2,7 @@ package com.foretell.sportsmeetings.service.impl;
 
 import com.foretell.sportsmeetings.dto.req.ProfileInfoReqDto;
 import com.foretell.sportsmeetings.dto.req.RegistrationReqDto;
+import com.foretell.sportsmeetings.dto.res.TelegramBotActivationCodeResDto;
 import com.foretell.sportsmeetings.dto.res.UserInfoResDto;
 import com.foretell.sportsmeetings.exception.InvalidProfilePhotoException;
 import com.foretell.sportsmeetings.exception.notfound.RoleNotFoundException;
@@ -12,6 +13,7 @@ import com.foretell.sportsmeetings.model.User;
 import com.foretell.sportsmeetings.repo.RoleRepo;
 import com.foretell.sportsmeetings.repo.UserRepo;
 import com.foretell.sportsmeetings.service.UserService;
+import com.foretell.sportsmeetings.util.telegrambot.TelegramBot;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,6 +26,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -106,6 +109,33 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public TelegramBotActivationCodeResDto getTelegramBotActivationCode(String username) {
+        User user = findByUsername(username);
+        return new TelegramBotActivationCodeResDto(user.getTelegramBotActivationCode());
+    }
+
+    @Override
+    public boolean setUserRole(Long userId, String roleName) {
+        User user = findById(userId);
+        List<Role> roles = new ArrayList<Role>();
+        Role roleUser = roleRepo.findByName(roleName).
+                orElseThrow(() -> new RoleNotFoundException(roleName + " not found"));
+        roles.add(roleUser);
+        user.setRoles(roles);
+        userRepo.save(user);
+        return true;
+    }
+
+    @Override
+    public boolean activateTelegramBot(String telegramBotActivationCode, Long telegramBotChatId) {
+        User user = userRepo.findByTelegramBotActivationCode(telegramBotActivationCode).orElseThrow(
+                () -> new UserNotFoundException("User with activation code " + (telegramBotActivationCode) + " not found"));
+        user.setTelegramBotChatId(telegramBotChatId);
+        userRepo.save(user);
+        return true;
+    }
+
+    @Override
     public boolean loadProfilePhoto(MultipartFile photo, String username) throws InvalidProfilePhotoException {
         if (photo.isEmpty()) {
             throw new InvalidProfilePhotoException("Photo is empty");
@@ -154,6 +184,9 @@ public class UserServiceImpl implements UserService {
                 registrationReqDto.getLastName(),
                 registrationReqDto.getEmail(),
                 passwordEncoder.encode(registrationReqDto.getPassword()),
+                false,
+                UUID.randomUUID().toString(),
+                null,
                 null,
                 null,
                 null);

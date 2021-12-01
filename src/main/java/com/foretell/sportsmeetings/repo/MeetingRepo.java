@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -21,9 +22,18 @@ public interface MeetingRepo extends JpaRepository<Meeting, Long> {
     Page<Meeting> findAllWhereParticipantNotCreatorByParticipantId(Pageable pageable, Long id);
 
     @Query(value = "SELECT * FROM meetings " +
-            "WHERE ST_DistanceSphere(CAST(geom as geometry), CAST(:point as geometry)) < :distanceM", nativeQuery = true)
-    Page<Meeting> findAllByDistance(Pageable pageable, Point point, double distanceM);
+            "WHERE ST_DistanceSphere(CAST(geom AS geometry), CAST(:point AS geometry)) < :distanceM " +
+            "AND meetings.status = :status", nativeQuery = true)
+    Page<Meeting> findAllByDistance(Pageable pageable, Point point, double distanceM, String status);
 
-    @Query(value = "SELECT m.* FROM meetings AS m WHERE m.category_id IN ?1 ", nativeQuery = true)
-    Page<Meeting> findAllByDistanceAndCategoryIds(Pageable pageable, List<Long> categoryIds);
+    @Query(value = "SELECT m.* FROM meetings AS m WHERE m.category_id IN :categoryIds " +
+            "AND ST_DistanceSphere(CAST(geom AS geometry), CAST(:point AS geometry)) < :distanceM " +
+            "AND meetings.status = :status", nativeQuery = true)
+    Page<Meeting> findAllByDistanceAndCategoryIds(Pageable pageable, List<Long> categoryIds, Point point, double distanceM, String status);
+
+    @Query(value = "SELECT * FROM meetings WHERE meetings.status = ?1", nativeQuery = true)
+    List<Meeting> findAllByStatus(String status);
+
+    @Query(value = "SELECT * FROM meetings WHERE meetings.start_date > ?1", nativeQuery = true)
+    List<Meeting> findAllWhichNotStarted(Date date);
 }

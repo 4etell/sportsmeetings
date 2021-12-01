@@ -4,10 +4,12 @@ import com.foretell.sportsmeetings.dto.req.RequestToJoinMeetingReqDto;
 import com.foretell.sportsmeetings.dto.req.RequestToJoinMeetingStatusReqDto;
 import com.foretell.sportsmeetings.dto.res.RequestToJoinMeetingResDto;
 import com.foretell.sportsmeetings.dto.res.page.extnds.PageRequestToJoinMeetingResDto;
+import com.foretell.sportsmeetings.exception.RequestToJoinMeetingAlreadyCreatedException;
 import com.foretell.sportsmeetings.exception.RequestToJoinMeetingException;
 import com.foretell.sportsmeetings.exception.UserHaveNotPermissionException;
 import com.foretell.sportsmeetings.exception.notfound.RequestToJoinMeetingNotFoundException;
 import com.foretell.sportsmeetings.model.Meeting;
+import com.foretell.sportsmeetings.model.MeetingStatus;
 import com.foretell.sportsmeetings.model.RequestToJoinMeeting;
 import com.foretell.sportsmeetings.model.RequestToJoinMeetingStatus;
 import com.foretell.sportsmeetings.model.User;
@@ -15,6 +17,7 @@ import com.foretell.sportsmeetings.repo.RequestToJoinMeetingRepo;
 import com.foretell.sportsmeetings.service.MeetingService;
 import com.foretell.sportsmeetings.service.RequestToJoinMeetingService;
 import com.foretell.sportsmeetings.service.UserService;
+import com.foretell.sportsmeetings.util.telegrambot.TelegramBot;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -27,24 +30,29 @@ public class RequestToJoinMeetingServiceImpl implements RequestToJoinMeetingServ
     private final RequestToJoinMeetingRepo requestToJoinMeetingRepo;
     private final UserService userService;
     private final MeetingService meetingService;
+    private final TelegramBot telegramBot;
 
-    public RequestToJoinMeetingServiceImpl(RequestToJoinMeetingRepo requestToJoinMeetingRepo, UserService userService, MeetingService meetingService) {
+    public RequestToJoinMeetingServiceImpl(RequestToJoinMeetingRepo requestToJoinMeetingRepo, UserService userService, MeetingService meetingService, TelegramBot telegramBot) {
         this.requestToJoinMeetingRepo = requestToJoinMeetingRepo;
         this.userService = userService;
         this.meetingService = meetingService;
+        this.telegramBot = telegramBot;
     }
 
 
     @Override
-    public boolean create(RequestToJoinMeetingReqDto requestToJoinMeetingReqDto, String username) {
+    public boolean create(Long meetingId, RequestToJoinMeetingReqDto requestToJoinMeetingReqDto, String username) {
         User user = userService.findByUsername(username);
         Long userId = user.getId();
-        Long meetingId = requestToJoinMeetingReqDto.getMeetingId();
         if (requestToJoinMeetingRepo.findByMeetingIdAndCreatorId(meetingId, userId).isEmpty()) {
             Meeting meeting = meetingService.findById(meetingId);
 
             if (meeting.getCreator().getId().equals(userId)) {
                 throw new RequestToJoinMeetingException("You cannot create request to your meeting");
+            }
+
+            if (meeting.getStatus() == MeetingStatus.FINISHED) {
+                throw new RequestToJoinMeetingException("You cannot create request to finished meetings");
             }
 
             RequestToJoinMeeting requestToJoinMeeting = new RequestToJoinMeeting(
@@ -54,9 +62,12 @@ public class RequestToJoinMeetingServiceImpl implements RequestToJoinMeetingServ
                     RequestToJoinMeetingStatus.CREATED
             );
             requestToJoinMeetingRepo.save(requestToJoinMeeting);
+            if (meeting.getCreator().getTelegramBotChatId() != null) {
+                telegramBot.sendNewRequestToMeetingNotification(meeting.getCreator().getTelegramBotChatId());
+            }
             return true;
         } else {
-            throw new RequestToJoinMeetingException("You already created request to this meeting");
+            throw new RequestToJoinMeetingAlreadyCreatedException("You already created request to this meeting");
         }
     }
 
@@ -78,14 +89,20 @@ public class RequestToJoinMeetingServiceImpl implements RequestToJoinMeetingServ
     }
 
     @Override
-    public RequestToJoinMeetingResDto updateStatus(Long id,
+    public RequestToJoinMeetingResDto updateStatus(Long requestId,
+                                                   Long meetingId,
                                                    RequestToJoinMeetingStatusReqDto requestToJoinMeetingStatusReqDto,
-                                                   String meetingCreatorUsername) {
-        User creator = userService.findByUsername(meetingCreatorUsername);
-        RequestToJoinMeeting requestToJoinMeeting = findById(id);
+                                                   String username) {
+        User user = userService.findByUsername(username);
+        Meeting meeting = meetingService.findById(meetingId);
+        RequestToJoinMeeting requestToJoinMeeting = findById(requestId);
 
-        if (requestToJoinMeeting.getMeeting().getCreator().getId().equals(creator.getId())) {
+        if (meeting.getCreator().getId().equals(user.getId())) {
             requestToJoinMeeting.setStatus(requestToJoinMeetingStatusReqDto.getRequestToJoinMeetingStatus());
+            if (requestToJoinMeetingStatusReqDto.getRequestToJoinMeetingStatus() == RequestToJoinMeetingStatus.ACCEPTED
+                    && requestToJoinMeeting.getCreator().getTelegramBotChatId() != null) {
+                telegramBot.sendRequestAcceptedNotification(requestToJoinMeeting.getCreator().getTelegramBotChatId());
+            }
             return convertRequestToJoinMeetingToRequestToJoinMeetingResDto(
                     requestToJoinMeetingRepo.save(requestToJoinMeeting));
         } else {

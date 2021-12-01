@@ -9,7 +9,7 @@ import org.springframework.data.domain.Pageable;
 public interface ProfileCommentService {
     ProfileComment findById(Long id);
 
-    ProfileCommentResDto create(ProfileCommentReqDto profileCommentReqDto, String username);
+    ProfileCommentResDto create(Long recipientId, ProfileCommentReqDto profileCommentReqDto, String username);
 
     PageProfileCommentResDto getAllByRecipientId(Pageable pageable, Long recipientId);
 

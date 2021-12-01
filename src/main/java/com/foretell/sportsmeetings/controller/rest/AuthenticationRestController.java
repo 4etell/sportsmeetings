@@ -4,7 +4,7 @@ import com.foretell.sportsmeetings.dto.req.AuthenticationReqDto;
 import com.foretell.sportsmeetings.dto.req.RegistrationReqDto;
 import com.foretell.sportsmeetings.dto.res.AuthenticationResDto;
 import com.foretell.sportsmeetings.service.UserService;
-import com.foretell.sportsmeetings.util.jwt.JwtProvider;
+import com.foretell.sportsmeetings.security.jwt.JwtProvider;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;

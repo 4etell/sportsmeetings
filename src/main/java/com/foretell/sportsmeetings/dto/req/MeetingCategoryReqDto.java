@@ -6,7 +6,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
 @Data
-public class AdminMeetingCategoryReqDto {
+public class MeetingCategoryReqDto {
     @NotBlank(message = "Name cannot be blank")
     @Size(message = "Max length of name is 100")
     private String name;
