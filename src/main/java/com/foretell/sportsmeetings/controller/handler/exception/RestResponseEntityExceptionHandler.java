@@ -4,6 +4,7 @@ import com.foretell.sportsmeetings.exception.InvalidDateTimeReqDtoException;
 import com.foretell.sportsmeetings.exception.InvalidProfilePhotoException;
 import com.foretell.sportsmeetings.exception.MaxNumbOfMeetingParticipantsException;
 import com.foretell.sportsmeetings.exception.ProfileCommentException;
+import com.foretell.sportsmeetings.exception.RequestToJoinMeetingAlreadyCreatedException;
 import com.foretell.sportsmeetings.exception.RequestToJoinMeetingException;
 import com.foretell.sportsmeetings.exception.UpdateParticipantsException;
 import com.foretell.sportsmeetings.exception.UserHaveNotPermissionException;
@@ -117,6 +118,13 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     })
     public ResponseEntity<?> handleRequestToJoinMeetingException(Exception ex, WebRequest request) {
         return ResponseEntity.status(400).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(value = {
+            RequestToJoinMeetingAlreadyCreatedException.class
+    })
+    public ResponseEntity<?> handleRequestToJoinMeetingAlreadyCreatedException(Exception ex, WebRequest request) {
+        return ResponseEntity.status(490).body(ex.getMessage());
     }
 
     @ExceptionHandler(value = {
