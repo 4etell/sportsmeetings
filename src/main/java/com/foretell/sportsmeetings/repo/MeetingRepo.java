@@ -16,6 +16,9 @@ public interface MeetingRepo extends JpaRepository<Meeting, Long> {
     @Query(value = "SELECT * FROM meetings WHERE meetings.creator_id = ?1 AND meetings.status = ?2", nativeQuery = true)
     Page<Meeting> findAllByCreatorId(Pageable pageable, Long id, String status);
 
+    @Query(value = "SELECT * FROM meetings WHERE meetings.creator_id = ?1 AND meetings.status = ?2", nativeQuery = true)
+    List<Meeting> findAllByCreatorId(Long id, String status);
+
     @Query(value = "SELECT m.* FROM meetings AS m JOIN meeting_participants AS mp ON m.id = mp.meeting_id " +
             "WHERE mp.participant_id = ?1 AND m.creator_id != ?1 AND m.status = ?2",
             nativeQuery = true)
