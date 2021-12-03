@@ -13,13 +13,13 @@ import java.util.List;
 
 @Repository
 public interface MeetingRepo extends JpaRepository<Meeting, Long> {
-    @Query(value = "SELECT * FROM meetings WHERE meetings.creator_id = ?1", nativeQuery = true)
-    Page<Meeting> findAllByCreatorId(Pageable pageable, Long id);
+    @Query(value = "SELECT * FROM meetings WHERE meetings.creator_id = ?1 AND meetings.status = ?2", nativeQuery = true)
+    Page<Meeting> findAllByCreatorId(Pageable pageable, Long id, String status);
 
     @Query(value = "SELECT m.* FROM meetings AS m JOIN meeting_participants AS mp ON m.id = mp.meeting_id " +
-            "WHERE mp.participant_id = ?1 AND m.creator_id != ?1",
+            "WHERE mp.participant_id = ?1 AND m.creator_id != ?1 AND m.status = ?2",
             nativeQuery = true)
-    Page<Meeting> findAllWhereParticipantNotCreatorByParticipantId(Pageable pageable, Long id);
+    Page<Meeting> findAllWhereParticipantNotCreatorByParticipantId(Pageable pageable, Long id, String status);
 
     @Query(value = "SELECT * FROM meetings " +
             "WHERE ST_DistanceSphere(CAST(geom AS geometry), CAST(:point AS geometry)) < :distanceM " +

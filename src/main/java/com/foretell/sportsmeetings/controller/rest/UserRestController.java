@@ -16,6 +16,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,11 +36,13 @@ public class UserRestController {
 
     private final UserService userService;
     private final JwtProvider jwtProvider;
+    private final AuthenticationManager authenticationManager;
     private final ProfileCommentService profileCommentService;
 
-    public UserRestController(UserService userService, JwtProvider jwtProvider, ProfileCommentService profileCommentService) {
+    public UserRestController(UserService userService, JwtProvider jwtProvider, AuthenticationManager authenticationManager, ProfileCommentService profileCommentService) {
         this.userService = userService;
         this.jwtProvider = jwtProvider;
+        this.authenticationManager = authenticationManager;
         this.profileCommentService = profileCommentService;
     }
 
@@ -59,6 +63,8 @@ public class UserRestController {
                                        HttpServletRequest httpServletRequest) {
         String usernameFromToken =
                 jwtProvider.getUsernameFromToken(jwtProvider.getTokenFromRequest(httpServletRequest));
+
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(usernameFromToken, profileInfoReqDto.getConfirmPassword()));
 
         return userService.changeProfile(profileInfoReqDto, usernameFromToken);
     }

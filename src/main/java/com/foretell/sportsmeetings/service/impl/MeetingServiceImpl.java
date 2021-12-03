@@ -95,17 +95,17 @@ public class MeetingServiceImpl implements MeetingService {
     }
 
     @Override
-    public PageMeetingResDto getAllByCreatorUsername(Pageable pageable, String username) {
+    public PageMeetingResDto getAllByCreatorUsername(Pageable pageable, String username, MeetingStatus meetingStatus) {
         User user = userService.findByUsername(username);
-        Page<Meeting> page = meetingRepo.findAllByCreatorId(pageable, user.getId());
+        Page<Meeting> page = meetingRepo.findAllByCreatorId(pageable, user.getId(), meetingStatus.toString());
         return convertMeetingPageToPageMeetingResDto(page, pageable);
     }
 
     @Override
     public PageMeetingResDto getAllWhereParticipantNotCreatorByParticipantUsername(Pageable pageable, String
-            username) {
+            username, MeetingStatus meetingStatus) {
         User user = userService.findByUsername(username);
-        Page<Meeting> page = meetingRepo.findAllWhereParticipantNotCreatorByParticipantId(pageable, user.getId());
+        Page<Meeting> page = meetingRepo.findAllWhereParticipantNotCreatorByParticipantId(pageable, user.getId(), meetingStatus.toString());
         return convertMeetingPageToPageMeetingResDto(page, pageable);
     }
 
