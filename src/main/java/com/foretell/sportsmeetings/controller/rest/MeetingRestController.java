@@ -11,6 +11,7 @@ import com.foretell.sportsmeetings.dto.res.RequestToJoinMeetingResDto;
 import com.foretell.sportsmeetings.dto.res.page.extnds.PageMeetingCategoryResDto;
 import com.foretell.sportsmeetings.dto.res.page.extnds.PageMeetingResDto;
 import com.foretell.sportsmeetings.dto.res.page.extnds.PageRequestToJoinMeetingResDto;
+import com.foretell.sportsmeetings.model.MeetingStatus;
 import com.foretell.sportsmeetings.security.jwt.JwtProvider;
 import com.foretell.sportsmeetings.service.MeetingCategoryService;
 import com.foretell.sportsmeetings.service.MeetingService;
@@ -30,12 +31,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.RequestContextUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
-import java.util.TimeZone;
 
 @RestController
 @RequestMapping("meetings")
@@ -100,12 +99,13 @@ public class MeetingRestController {
     @GetMapping("created")
     public PageMeetingResDto getMyCreatedMeetings(
             HttpServletRequest httpServletRequest,
+            @RequestParam MeetingStatus meetingStatus,
             @PageableDefault(size = 3, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable) {
 
         String usernameFromToken =
                 jwtProvider.getUsernameFromToken(jwtProvider.getTokenFromRequest(httpServletRequest));
 
-        return meetingService.getAllByCreatorUsername(pageable, usernameFromToken);
+        return meetingService.getAllByCreatorUsername(pageable, usernameFromToken, meetingStatus);
     }
 
     @PostMapping("{meetingId}/requests")
@@ -157,12 +157,13 @@ public class MeetingRestController {
     @GetMapping("attended")
     public PageMeetingResDto getMyAttendedMeetings(
             HttpServletRequest httpServletRequest,
+            @RequestParam MeetingStatus meetingStatus,
             @PageableDefault(size = 3, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable) {
 
         String usernameFromToken =
                 jwtProvider.getUsernameFromToken(jwtProvider.getTokenFromRequest(httpServletRequest));
 
-        return meetingService.getAllWhereParticipantNotCreatorByParticipantUsername(pageable, usernameFromToken);
+        return meetingService.getAllWhereParticipantNotCreatorByParticipantUsername(pageable, usernameFromToken, meetingStatus);
     }
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
