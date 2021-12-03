@@ -7,6 +7,7 @@ import com.foretell.sportsmeetings.dto.req.UpdateParticipantStatusReqDto;
 import com.foretell.sportsmeetings.dto.res.MeetingResDto;
 import com.foretell.sportsmeetings.dto.res.page.extnds.PageMeetingResDto;
 import com.foretell.sportsmeetings.exception.InvalidDateTimeReqDtoException;
+import com.foretell.sportsmeetings.exception.MaxCountOfMeetingsException;
 import com.foretell.sportsmeetings.exception.UpdateParticipantsException;
 import com.foretell.sportsmeetings.exception.UserHaveNotPermissionException;
 import com.foretell.sportsmeetings.exception.notfound.MeetingNotFoundException;
@@ -59,28 +60,32 @@ public class MeetingServiceImpl implements MeetingService {
     public MeetingResDto createMeeting(MeetingReqDto meetingReqDto, String username) {
         User user = userService.findByUsername(username);
         MeetingCategory meetingCategory = meetingCategoryService.findById(meetingReqDto.getCategoryId());
-        GregorianCalendar startDate = createStartDateOfMeeting(meetingReqDto.getStartDate());
-        GregorianCalendar endDate = createEndDateOfMeeting(startDate, meetingReqDto.getEndDate());
-        Set<User> participants = new HashSet<>();
-        Point point = geoFactory.createPoint(
-                new Coordinate(meetingReqDto.getLatitude(), meetingReqDto.getLongitude()));
-        participants.add(user);
-        Meeting meeting = new Meeting(
-                meetingCategory,
-                MeetingStatus.CREATED,
-                meetingReqDto.getDescription(),
-                point, startDate,
-                endDate,
-                meetingReqDto.getMaxNumbOfParticipants(),
-                user,
-                participants
-        );
+        if (meetingRepo.findAllByCreatorId(user.getId(), MeetingStatus.CREATED.toString()).size() < 10) {
+            GregorianCalendar startDate = createStartDateOfMeeting(meetingReqDto.getStartDate());
+            GregorianCalendar endDate = createEndDateOfMeeting(startDate, meetingReqDto.getEndDate());
+            Set<User> participants = new HashSet<>();
+            Point point = geoFactory.createPoint(
+                    new Coordinate(meetingReqDto.getLatitude(), meetingReqDto.getLongitude()));
+            participants.add(user);
+            Meeting meeting = new Meeting(
+                    meetingCategory,
+                    MeetingStatus.CREATED,
+                    meetingReqDto.getDescription(),
+                    point, startDate,
+                    endDate,
+                    meetingReqDto.getMaxNumbOfParticipants(),
+                    user,
+                    participants
+            );
 
-        Meeting savedMeeting = meetingRepo.save(meeting);
-        customScheduler.scheduleMeetingFinishedStatusTask(savedMeeting.getId(), savedMeeting.getEndDate().getTime());
-        customScheduler.scheduleTelegramStartMeetingNotification(savedMeeting.getId(), savedMeeting.getEndDate().getTimeInMillis() - 7200000);
+            Meeting savedMeeting = meetingRepo.save(meeting);
+            customScheduler.scheduleMeetingFinishedStatusTask(savedMeeting.getId(), savedMeeting.getEndDate().getTime());
+            customScheduler.scheduleTelegramStartMeetingNotification(savedMeeting.getId(), savedMeeting.getEndDate().getTimeInMillis() - 7200000);
 
-        return convertMeetingToMeetingResDto(savedMeeting);
+            return convertMeetingToMeetingResDto(savedMeeting);
+        } else {
+            throw  new MaxCountOfMeetingsException("Max count of meetings with status CREATED is 10");
+        }
     }
 
     @Override
