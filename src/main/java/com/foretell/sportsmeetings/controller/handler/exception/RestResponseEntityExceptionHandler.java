@@ -2,6 +2,7 @@ package com.foretell.sportsmeetings.controller.handler.exception;
 
 import com.foretell.sportsmeetings.exception.InvalidDateTimeReqDtoException;
 import com.foretell.sportsmeetings.exception.InvalidProfilePhotoException;
+import com.foretell.sportsmeetings.exception.MaxCountOfMeetingsException;
 import com.foretell.sportsmeetings.exception.MaxNumbOfMeetingParticipantsException;
 import com.foretell.sportsmeetings.exception.ProfileCommentException;
 import com.foretell.sportsmeetings.exception.RequestToJoinMeetingAlreadyCreatedException;
@@ -76,6 +77,12 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     public ResponseEntity<?> handleAccessDeniedException(Exception ex, WebRequest request) {
         return ResponseEntity.status(403).body(ex.getMessage());
     }
+
+    @ExceptionHandler(value = {MaxCountOfMeetingsException.class})
+    public ResponseEntity<?> handleMaxCountOfMeetingsException(Exception ex, WebRequest request) {
+        return ResponseEntity.status(422).body(ex.getMessage());
+    }
+
 
     @ExceptionHandler(value = {
             MaxNumbOfMeetingParticipantsException.class
