@@ -17,9 +17,9 @@ public interface MeetingService {
 
     MeetingResDto getById(Long id);
 
-    PageMeetingResDto getAllByCreatorUsername(Pageable pageable, String username);
+    PageMeetingResDto getAllByCreatorUsername(Pageable pageable, String username, MeetingStatus meetingStatus);
 
-    PageMeetingResDto getAllWhereParticipantNotCreatorByParticipantUsername(Pageable pageable, String username);
+    PageMeetingResDto getAllWhereParticipantNotCreatorByParticipantUsername(Pageable pageable, String username, MeetingStatus meetingStatus);
 
     PageMeetingResDto getAllByCategoryAndDistance(Pageable pageable, List<Long> categoryId, double userLatitude, double longitude, int distance);
 

@@ -19,6 +19,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -49,6 +50,13 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     })
     public ResponseEntity<?> handleAllExceptions(Exception ex, WebRequest request) {
         return ResponseEntity.internalServerError().body("Something wrong on server");
+    }
+
+    @ExceptionHandler(value = {
+            AuthenticationException.class
+    })
+    public ResponseEntity<?> handleAuthException(Exception ex, WebRequest request) {
+        return ResponseEntity.status(403).body(ex.getMessage());
     }
 
 

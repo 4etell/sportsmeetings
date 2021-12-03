@@ -5,15 +5,14 @@ import com.foretell.sportsmeetings.dto.req.RegistrationReqDto;
 import com.foretell.sportsmeetings.dto.res.TelegramBotActivationCodeResDto;
 import com.foretell.sportsmeetings.dto.res.UserInfoResDto;
 import com.foretell.sportsmeetings.exception.InvalidProfilePhotoException;
+import com.foretell.sportsmeetings.exception.UsernameAlreadyExistsException;
 import com.foretell.sportsmeetings.exception.notfound.RoleNotFoundException;
 import com.foretell.sportsmeetings.exception.notfound.UserNotFoundException;
-import com.foretell.sportsmeetings.exception.UsernameAlreadyExistsException;
 import com.foretell.sportsmeetings.model.Role;
 import com.foretell.sportsmeetings.model.User;
 import com.foretell.sportsmeetings.repo.RoleRepo;
 import com.foretell.sportsmeetings.repo.UserRepo;
 import com.foretell.sportsmeetings.service.UserService;
-import com.foretell.sportsmeetings.util.telegrambot.TelegramBot;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -63,7 +62,7 @@ public class UserServiceImpl implements UserService {
             user.setRoles(userRoles);
 
             User registeredUser = userRepo.save(user);
-            log.info("IN register - user: {} successfully registered", registeredUser);
+            log.info("IN register - user {} successfully registered", registeredUser.getUsername());
 
             return registeredUser;
         } else {
@@ -102,9 +101,11 @@ public class UserServiceImpl implements UserService {
         user.setEmail(profileInfoReqDto.getEmail());
         user.setFirstName(profileInfoReqDto.getFirstName());
         user.setLastName(profileInfoReqDto.getLastName());
-        user.setPassword(passwordEncoder.encode(profileInfoReqDto.getPassword()));
+        if (profileInfoReqDto.getPassword() != null) {
+            user.setPassword(passwordEncoder.encode(profileInfoReqDto.getPassword()));
+        }
         User updatedUser = userRepo.save(user);
-        log.info("IN changeProfile - user: {} successfully updated info", updatedUser);
+        log.info("IN changeProfile - user: {} successfully updated info", updatedUser.getUsername());
         return convertUserToUserInfoResDto(updatedUser);
     }
 
