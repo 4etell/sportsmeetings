@@ -45,14 +45,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         animationBuilder.chatId(stringChatId);
         List<String> splitMessageText = Arrays.asList(messageText.split(" "));
 
-        if (messageText.contains("/hello")) {
-            messageBuilder.text("Приветствую смотрящих");
-            InputFile papichInputFile = new InputFile();
-            papichInputFile.setMedia("https://daniilkaranov.ru/static/media/papich.e6b97668.gif");
-            animationBuilder.animation(papichInputFile);
-            execute(messageBuilder.build());
-            execute(animationBuilder.build());
-        } else if (splitMessageText.size() == 2 && splitMessageText.get(0).contains("/активировать")) {
+        if (splitMessageText.size() == 2 && splitMessageText.get(0).contains("/активировать")) {
             String activationCode = splitMessageText.get(1);
             try {
                 if (userService.activateTelegramBot(activationCode, chatId)) {
@@ -71,7 +64,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         SendMessage.SendMessageBuilder messageBuilder = SendMessage.builder();
         messageBuilder.chatId(chatId.toString());
         messageBuilder.text("У вас новый запрос на вступление в вашу встречу, " +
-                "зайдите на сайт, чтобы узнать подробности: https://daniilkaranov.ru/static/media/papich.e6b97668.gif");
+                "зайдите на сайт, чтобы узнать подробности: https://sportsmeetings.daniilkaranov.ru/profile/events");
         execute(messageBuilder.build());
     }
 
@@ -80,26 +73,26 @@ public class TelegramBot extends TelegramLongPollingBot {
         SendMessage.SendMessageBuilder messageBuilder = SendMessage.builder();
         messageBuilder.chatId(chatId.toString());
         messageBuilder.text("Вас приняли во встречу, " +
-                "зайдите на сайт, чтобы узнать подробности: https://daniilkaranov.ru/static/media/papich.e6b97668.gif");
+                "зайдите на сайт, чтобы узнать подробности: https://sportsmeetings.daniilkaranov.ru/profile/events");
         execute(messageBuilder.build());
     }
 
     @SneakyThrows
-    public void sendStartMeetingNotification(Long chatId, String date) {
+    public void sendStartMeetingNotification(Long chatId, String date, String name) {
         SendMessage.SendMessageBuilder messageBuilder = SendMessage.builder();
         messageBuilder.chatId(chatId.toString());
-        messageBuilder.text("Не забудьте, у вас встреча " + (date) + " " +
-                "зайдите на сайт, чтобы узнать подробности: https://daniilkaranov.ru/static/media/papich.e6b97668.gif");
+        messageBuilder.text("Не забудьте, у вас " + name + " встреча " + (date) + " " +
+                "зайдите на сайт, чтобы узнать подробности: https://sportsmeetings.daniilkaranov.ru/profile/events");
         execute(messageBuilder.build());
         log.info("StartMeetingNotification sent");
     }
 
     @SneakyThrows
-    public void sendRateMeetingNotification(Long chatId) {
+    public void sendRateMeetingNotification(Long chatId, Long creatorId) {
         SendMessage.SendMessageBuilder messageBuilder = SendMessage.builder();
         messageBuilder.chatId(chatId.toString());
         messageBuilder.text("У вас только что закончилась встреча, оставьте отзыв на странице организатора: " +
-                "https://daniilkaranov.ru/static/media/papich.e6b97668.gif");
+                "https://sportsmeetings.daniilkaranov.ru/user/" + creatorId);
         execute(messageBuilder.build());
     }
 
