@@ -42,8 +42,8 @@ public class CustomScheduler {
                         meetingRepo.save(meetingFromDb);
                         meetingFromDb.getParticipants().forEach(user -> {
                             Long chatId = user.getTelegramBotChatId();
-                            if (chatId != null) {
-                                telegramBot.sendRateMeetingNotification(chatId);
+                            if (chatId != null && !user.getId().equals(meetingFromDb.getCreator().getId())) {
+                                telegramBot.sendRateMeetingNotification(chatId, meetingFromDb.getCreator().getId());
                             }
                         });
                         log.info("Status of meeting with id: " + (meetingId) + " set to FINISHED");
@@ -51,7 +51,6 @@ public class CustomScheduler {
                         log.error("Meeting with id: " + (meetingId) + " not found");
                     }
                 },
-
                 endDate
         );
     }
@@ -67,7 +66,7 @@ public class CustomScheduler {
                         meeting.getParticipants().forEach(user -> {
                             Long chatId = user.getTelegramBotChatId();
                             if (chatId != null) {
-                                telegramBot.sendStartMeetingNotification(chatId, CalendarUtil.convertDateOfMeetingToString(meeting.getStartDate()));
+                                telegramBot.sendStartMeetingNotification(chatId, CalendarUtil.convertDateOfMeetingToString(meeting.getStartDate()), meeting.getCategory().getName());
                             }
                         });
                     }
