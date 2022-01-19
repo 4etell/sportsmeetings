@@ -31,7 +31,7 @@ public interface MeetingRepo extends JpaRepository<Meeting, Long> {
 
     @Query(value = "SELECT m.* FROM meetings AS m WHERE m.category_id IN :categoryIds " +
             "AND ST_DistanceSphere(CAST(geom AS geometry), CAST(:point AS geometry)) < :distanceM " +
-            "AND meetings.status = :status", nativeQuery = true)
+            "AND m.status = :status", nativeQuery = true)
     Page<Meeting> findAllByDistanceAndCategoryIds(Pageable pageable, List<Long> categoryIds, Point point, double distanceM, String status);
 
     @Query(value = "SELECT * FROM meetings WHERE meetings.status = ?1", nativeQuery = true)
